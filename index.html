@@ -183,7 +183,7 @@
               </div>
               <div>
                 <label class="text-xs text-gray-400 mb-1.5 block">📄 העלאת סריקת Screaming Frog (CSV)</label>
-                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-white/10 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400">
+                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-200 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400">
                   <span>📁</span> <span id="sf-label">לחץ לבחירת קובץ</span>
                   <input id="input-sf" type="file" accept=".csv" class="hidden" onchange="document.getElementById('sf-label').textContent=this.files[0]?.name||'לחץ לבחירת קובץ'">
                 </label>
@@ -218,7 +218,7 @@
             <span class="text-sm font-medium">התקדמות כללית</span>
             <span id="overall-pct" class="text-sm font-bold gradient-text">0%</span>
           </div>
-          <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+          <div class="h-3 rounded-full bg-gray-100 overflow-hidden">
             <div id="overall-bar" class="h-full rounded-full bg-gradient-to-l from-brand-500 to-brand-700 transition-all duration-1000" style="width:0%"></div>
           </div>
         </div>
@@ -235,7 +235,7 @@
             <span class="text-xs text-gray-400">פיד חי</span>
           </div>
           <div id="discovery-feed" class="space-y-2 max-h-48 overflow-y-auto text-sm">
-            <div class="text-gray-500 text-xs">ממתין לפעילות...</div>
+            <div class="text-gray-400 text-xs">ממתין לפעילות...</div>
           </div>
         </div>
       </div>
@@ -280,9 +280,9 @@
 
         <!-- Quick stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">🔴</div><div id="stat-critical" class="text-xl font-bold text-red-400">0</div><div class="text-[10px] text-gray-500">בעיות קריטיות</div></div>
-          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">⚡</div><div id="stat-quickwins" class="text-xl font-bold text-yellow-400">0</div><div class="text-[10px] text-gray-500">ניצחונות מהירים</div></div>
-          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">📄</div><div id="stat-pages" class="text-xl font-bold text-blue-400">--</div><div class="text-[10px] text-gray-500">דפים נסרקו</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">🔴</div><div id="stat-critical" class="text-xl font-bold text-red-600">0</div><div class="text-[10px] text-gray-500">בעיות קריטיות</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">⚡</div><div id="stat-quickwins" class="text-xl font-bold text-yellow-600">0</div><div class="text-[10px] text-gray-500">ניצחונות מהירים</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">📄</div><div id="stat-pages" class="text-xl font-bold text-blue-600">--</div><div class="text-[10px] text-gray-500">דפים נסרקו</div></div>
           <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">🤖</div><div id="stat-agents" class="text-xl font-bold text-brand-500">6</div><div class="text-[10px] text-gray-500">סוכנים עבדו</div></div>
         </div>
 
@@ -362,10 +362,10 @@
               <h3 id="task-title" class="text-lg font-bold mt-1">טוען...</h3>
             </div>
           </div>
-          <div id="task-description" class="text-sm text-gray-300 leading-relaxed mb-4 glass rounded-xl p-4"></div>
+          <div id="task-description" class="text-sm text-gray-600 leading-relaxed mb-4 glass rounded-xl p-4"></div>
           <div class="flex items-center gap-4 mb-4">
-            <span id="task-impact" class="px-2.5 py-1 rounded-full text-xs bg-red-500/10 text-red-400">🎯 גבוהה</span>
-            <span id="task-difficulty" class="text-xs text-yellow-400">💪 בינוני</span>
+            <span id="task-impact" class="px-2.5 py-1 rounded-full text-xs bg-red-500/10 text-red-600">🎯 גבוהה</span>
+            <span id="task-difficulty" class="text-xs text-yellow-600">💪 בינוני</span>
             <span id="task-time" class="text-xs text-gray-500">⏱️ --</span>
           </div>
           <div class="flex gap-3">
@@ -380,7 +380,7 @@
             <span>התקדמות כללית</span>
             <span><span id="exec-done">0</span>/<span id="exec-total">0</span> משימות</span>
           </div>
-          <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+          <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
             <div id="exec-bar" class="h-full rounded-full bg-gradient-to-l from-brand-500 to-brand-600 transition-all duration-500" style="width:0%"></div>
           </div>
         </div>
@@ -402,10 +402,10 @@
           <div class="text-4xl mb-3">📊</div>
           <h3 class="text-lg font-bold mb-2">מעקב חודשי</h3>
           <p class="text-sm text-gray-400 mb-4">הסריקה הבאה מתוזמנת לתחילת החודש הבא.<br>נשווה את הביצועים ונעדכן את תוכנית העבודה.</p>
-          <div class="glass rounded-xl p-4 text-sm text-gray-300 space-y-2 text-right">
-            <p>🔄 סריקה חודשית אוטומטית — <span class="text-green-400">פעיל</span></p>
-            <p>📈 השוואה לאודיט קודם — <span class="text-yellow-400">ממתין לאודיט שני</span></p>
-            <p>🔔 התראות ירידת דירוג — <span class="text-green-400">פעיל</span></p>
+          <div class="glass rounded-xl p-4 text-sm text-gray-600 space-y-2 text-right">
+            <p>🔄 סריקה חודשית אוטומטית — <span class="text-green-600">פעיל</span></p>
+            <p>📈 השוואה לאודיט קודם — <span class="text-yellow-600">ממתין לאודיט שני</span></p>
+            <p>🔔 התראות ירידת דירוג — <span class="text-green-600">פעיל</span></p>
           </div>
         </div>
       </div>
@@ -521,7 +521,7 @@
           renderAgentProgress();
           updateOverallProgress();
 
-          feedEl.innerHTML = `<div class="text-gray-300 text-xs py-1 border-r-2 border-brand-500/40 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML;
+          feedEl.innerHTML = `<div class="text-gray-600 text-xs py-1 border-r-2 border-brand-500/40 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML;
 
           if (agent === 5 && pct === 100) {
             setTimeout(() => goToStage('diagnosis'), 1500);
@@ -541,9 +541,9 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-medium">${a.name} <span class="text-gray-500 font-normal">— ${a.role}</span></span>
-              <span class="text-xs font-bold ${a.status === 'done' ? 'text-green-400' : 'text-gray-400'}">${a.pct}%</span>
+              <span class="text-xs font-bold ${a.status === 'done' ? 'text-green-600' : 'text-gray-400'}">${a.pct}%</span>
             </div>
-            <div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${barColor} transition-all duration-700" style="width:${a.pct}%"></div></div>
+            <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${barColor} transition-all duration-700" style="width:${a.pct}%"></div></div>
           </div>
           <div class="w-5">${statusIcon}</div>
         </div>`;
@@ -604,10 +604,10 @@
         <div class="flex items-start gap-3"><div class="text-xl">🏎️</div><div>
           <h4 class="text-sm font-bold text-white mb-1">Lighthouse (נתונים אמיתיים)</h4>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.performance}</div><div class="text-gray-500">Performance</div></div>
-            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.seo}</div><div class="text-gray-500">SEO</div></div>
-            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.accessibility}</div><div class="text-gray-500">Accessibility</div></div>
-            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.best_practices}</div><div class="text-gray-500">Best Practices</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-600">${lh.performance}</div><div class="text-gray-500">Performance</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-600">${lh.seo}</div><div class="text-gray-500">SEO</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-600">${lh.accessibility}</div><div class="text-gray-500">Accessibility</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-600">${lh.best_practices}</div><div class="text-gray-500">Best Practices</div></div>
           </div>
           <div class="flex gap-4 mt-2 text-xs text-gray-400">
             <span>⚡ FCP: ${lh.fcp || '--'}</span><span>📏 LCP: ${lh.lcp || '--'}</span><span>🧱 TBT: ${lh.tbt || '--'}</span><span>📐 CLS: ${lh.cls || '--'}</span>
@@ -623,8 +623,8 @@
             const name = typeof i === 'string' ? i : i.issue;
             const labels = {missing_h1:'חסר H1',no_image_alt:'תמונות בלי Alt',low_content_rate:'תוכן דליל',irrelevant_title:'כותרת לא מתאימה',unused_css_js:'CSS/JS מיותר',image_optimization:'תמונות כבדות',duplicate_meta_tags:'Meta כפולים'};
             const sev = typeof i === 'object' ? i.severity : (name === 'missing_h1' ? 'critical' : 'medium');
-            const sevColor = sev === 'critical' ? 'text-red-400 bg-red-500/10' : sev === 'high' ? 'text-orange-400 bg-orange-500/10' : 'text-yellow-400 bg-yellow-500/10';
-            return '<div class="flex items-center gap-2"><span class="px-1.5 py-0.5 rounded text-[10px] '+sevColor+'">'+(sev==='critical'?'🔴':sev==='high'?'🟠':'🟡')+' '+sev+'</span><span class="text-xs text-gray-300">'+(labels[name]||name)+'</span></div>';
+            const sevColor = sev === 'critical' ? 'text-red-600 bg-red-500/10' : sev === 'high' ? 'text-orange-600 bg-orange-500/10' : 'text-yellow-600 bg-yellow-500/10';
+            return '<div class="flex items-center gap-2"><span class="px-1.5 py-0.5 rounded text-[10px] '+sevColor+'">'+(sev==='critical'?'🔴':sev==='high'?'🟠':'🟡')+' '+sev+'</span><span class="text-xs text-gray-600">'+(labels[name]||name)+'</span></div>';
           }).join('')}</div>
         </div></div>
       </div>`;
@@ -659,14 +659,14 @@
       ];
       document.getElementById('category-scores').innerHTML = cats.map((c,i) => {
         const s = sc[c.k]||0;
-        const col = s>=70?'text-green-400':s>=45?'text-yellow-400':s>=25?'text-orange-400':'text-red-400';
-        return `<div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><span>${c.e}</span><span class="text-xs font-medium text-gray-200">${c.l}</span></div><span class="text-xs font-bold ${col}">${s}/100</span></div><div class="h-2 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${c.c} bar-grow" style="width:${s}%;animation-delay:${.3+i*.12}s"></div></div></div>`;
+        const col = s>=70?'text-green-600':s>=45?'text-yellow-600':s>=25?'text-orange-600':'text-red-600';
+        return `<div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><span>${c.e}</span><span class="text-xs font-medium text-gray-200">${c.l}</span></div><span class="text-xs font-bold ${col}">${s}/100</span></div><div class="h-2 rounded-full bg-gray-100 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${c.c} bar-grow" style="width:${s}%;animation-delay:${.3+i*.12}s"></div></div></div>`;
       }).join('');
     }
 
     function renderSummary(sc, sikum) {
       const el = document.getElementById('diagnosis-summary');
-      el.innerHTML = `<div class="flex items-start gap-3"><div class="text-xl">📋</div><div class="text-sm text-gray-300 space-y-1">
+      el.innerHTML = `<div class="flex items-start gap-3"><div class="text-xl">📋</div><div class="text-sm text-gray-600 space-y-1">
         <p>🔧 <b>Technical:</b> ${sc.technical}/100 — ${sc.technical>=50?'סביר':'צריך טיפול דחוף'}</p>
         <p>📝 <b>Content:</b> ${sc.content}/100 — ${sc.content>=50?'בסיס קיים':'חסרים Meta ותוכן'}</p>
         <p>🔗 <b>Authority:</b> ${sc.authority}/100 — ${sc.authority>=50?'סביר':'צריך קישורים'}</p>
@@ -706,10 +706,10 @@
         document.getElementById(phase + '-done').textContent = done;
         document.getElementById(phase + '-total').textContent = pts.length;
         const el = document.getElementById('tasks-' + phase);
-        if (!pts.length) { el.innerHTML = '<div class="glass rounded-xl p-4 text-center text-gray-500 text-xs">אין משימות</div>'; return; }
+        if (!pts.length) { el.innerHTML = '<div class="glass rounded-xl p-4 text-center text-gray-400 text-xs">אין משימות</div>'; return; }
         el.innerHTML = pts.map((t, i) => {
           const si = t.status==='done'?'✅':t.status==='in_progress'?'🔄':'⬜';
-          const ic = {high:'text-red-400 bg-red-500/10',medium:'text-yellow-400 bg-yellow-500/10',low:'text-green-400 bg-green-500/10'};
+          const ic = {high:'text-red-600 bg-red-500/10',medium:'text-yellow-600 bg-yellow-500/10',low:'text-green-600 bg-green-500/10'};
           return `<div class="glass rounded-xl p-3.5 glass-card transition-all cursor-pointer" onclick="goToTask(${tasks.indexOf(t)})">
             <div class="flex items-start gap-2.5"><span class="text-base">${si}</span><div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5 mb-0.5"><span class="text-sm">${t.agent_emoji||'🤖'}</span><span class="text-xs font-medium text-white truncate">${t.title}</span></div>
