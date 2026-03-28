@@ -429,6 +429,14 @@
     <div id="clients-list" class="space-y-3">
       <div class="text-center py-12 text-gray-400 text-sm">טוען לקוחות...</div>
     </div>
+    <!-- Client detail panel -->
+    <div id="client-detail" class="hidden mt-6 glass-strong rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg" id="detail-client-name">—</h3>
+        <button onclick="document.getElementById('client-detail').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-sm">✕ סגור</button>
+      </div>
+      <div id="detail-history" class="space-y-3"></div>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════ -->
@@ -930,13 +938,49 @@
       }).join('');
     }
 
-    function openClientAudit(domain, name) {
-      document.getElementById('input-domain').value = domain;
-      document.getElementById('input-name').value = name;
-      document.getElementById('header-client').classList.remove('hidden');
-      document.getElementById('header-domain').textContent = domain;
-      showScreen('audit');
-      goToStage('diagnosis');
+    async function openClientAudit(domain, name) {
+      document.getElementById('detail-client-name').textContent = `📊 ${name} — ${domain}`;
+      document.getElementById('client-detail').classList.remove('hidden');
+      const histEl = document.getElementById('detail-history');
+      histEl.innerHTML = '<div class="text-center text-gray-400 text-xs py-4">טוען היסטוריה...</div>';
+
+      // Load all audits for this client
+      try {
+        const clients = await q('seo_clients', `domain=eq.${domain}&limit=1`);
+        if (!Array.isArray(clients) || !clients.length) { histEl.innerHTML = '<div class="text-center text-gray-400 text-xs">לא נמצא לקוח</div>'; return; }
+        const clientId = clients[0].id;
+        currentClientId = clientId;
+
+        const audits = await q('seo_audits', `client_id=eq.${clientId}&order=created_at.desc&limit=10`);
+        if (!Array.isArray(audits) || !audits.length) {
+          histEl.innerHTML = `<div class="text-center py-6"><p class="text-gray-400 text-sm mb-3">אין אודיטים עדיין</p><button onclick="document.getElementById('input-domain').value='${domain}';document.getElementById('input-name').value='${name}';showScreen('audit');goToStage('onboarding')" class="px-4 py-2 rounded-xl bg-brand-500 text-white text-sm">🚀 הרץ אודיט ראשון</button></div>`;
+          return;
+        }
+
+        histEl.innerHTML = `
+          <div class="grid grid-cols-4 gap-3 text-xs text-gray-400 font-medium px-2 mb-2"><span>תאריך</span><span>ציון</span><span>בוגרות</span><span>פעולות</span></div>
+          ${audits.map((a, i) => {
+            const date = new Date(a.created_at).toLocaleDateString('he-IL');
+            const sc = a.overall_score || 0;
+            const prev = audits[i+1]?.overall_score;
+            const diff = prev != null ? sc - prev : null;
+            const diffStr = diff != null ? (diff > 0 ? `<span class="text-green-600">+${diff}</span>` : diff < 0 ? `<span class="text-red-600">${diff}</span>` : '<span class="text-gray-400">—</span>') : '';
+            const scoreColor = sc >= 70 ? 'text-green-600' : sc >= 45 ? 'text-yellow-600' : 'text-orange-600';
+            const maturity = {starter:'מתחיל',foundation:'בסיס',developing:'בדרך',advanced:'מתקדם',leader:'מוביל'}[a.maturity_level] || '—';
+            return `<div class="glass rounded-xl p-3 grid grid-cols-4 gap-3 items-center text-sm ${i===0?'border-2 border-brand-500/20':''}">
+              <span>${date} ${i===0?'<span class="text-[10px] bg-brand-500/10 text-brand-700 px-1.5 py-0.5 rounded">אחרון</span>':''}</span>
+              <span class="font-bold ${scoreColor}">${sc}/100 ${diffStr}</span>
+              <span class="text-gray-600">${maturity}</span>
+              <button onclick="currentAuditId='${a.id}';currentClientId='${a.client_id}';document.getElementById('header-client').classList.remove('hidden');document.getElementById('header-domain').textContent='${domain}';showScreen('audit');goToStage('diagnosis')" class="text-brand-500 hover:text-brand-700 text-xs font-medium">צפה →</button>
+            </div>`;
+          }).join('')}
+          <div class="flex gap-3 mt-4">
+            <button onclick="document.getElementById('input-domain').value='${domain}';document.getElementById('input-name').value='${name}';document.getElementById('input-niche').value='${clients[0].niche||''}';showScreen('audit');goToStage('onboarding')" class="flex-1 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 transition">🔄 הרץ אודיט חדש</button>
+            <button onclick="chatWithAgent('daniel')" class="px-4 py-2.5 rounded-xl border border-brand-500/20 text-brand-700 text-sm font-medium hover:bg-brand-500/5 transition">💬 דבר עם דניאל</button>
+          </div>`;
+      } catch(e) {
+        histEl.innerHTML = `<div class="text-red-500 text-xs">שגיאה: ${e.message}</div>`;
+      }
     }
 
     // ──── Team Screen ────
