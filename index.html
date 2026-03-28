@@ -109,7 +109,7 @@
       <div class="glass-strong rounded-3xl p-8 max-w-2xl mx-auto fade-up">
         <!-- Daniel greeting -->
         <div class="flex items-start gap-4 mb-8">
-          <div class="w-14 h-14 rounded-2xl bg-brand-500/10 flex items-center justify-center text-3xl border border-brand-500/20 flex-shrink-0">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-14 h-14 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div>
             <div class="flex items-center gap-2 mb-1"><span class="font-bold text-brand-700 text-lg">דניאל</span><span class="text-xs text-gray-400">— מנהל צוות ה-SEO שלך</span></div>
             <p class="text-gray-600 text-sm leading-relaxed">היי! אני דניאל, מנהל צוות ה-SEO שלך. 👋<br>בוא נתחיל — ספר לי על האתר ואני שולח את הצוות לעבודה.</p>
@@ -205,7 +205,7 @@
       <div class="max-w-2xl mx-auto">
         <!-- Daniel message -->
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
-          <div class="text-2xl">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-10 h-10 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div>
             <span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
             <p class="text-gray-600 text-sm mt-1" id="discovery-message">מעולה! שלחתי את הצוות לסרוק את האתר שלך. זה ייקח כמה דקות. תראה אותם עובדים:</p>
@@ -248,7 +248,7 @@
       <div class="max-w-4xl mx-auto">
         <!-- Daniel summary -->
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
-          <div class="text-2xl">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-10 h-10 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
             <p class="text-gray-600 text-sm mt-1" id="diagnosis-daniel-msg">סיימנו! הנה הסיכום:</p>
           </div>
@@ -298,7 +298,7 @@
     <div id="stage-roadmap" class="stage hidden">
       <div class="max-w-3xl mx-auto">
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
-          <div class="text-2xl">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-10 h-10 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
             <p class="text-gray-600 text-sm mt-1">הכנתי לך תוכנית עבודה מותאמת אישית. מחולקת ל-3 שלבים — נתחיל מהדברים עם ההשפעה הכי גדולה:</p>
           </div>
@@ -347,7 +347,7 @@
       <div class="max-w-3xl mx-auto">
         <!-- Current task focus -->
         <div class="glass rounded-2xl p-5 mb-4 fade-up flex items-start gap-3">
-          <div class="text-2xl">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-10 h-10 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
             <p class="text-gray-600 text-sm mt-1">הנה המשימה הבאה שלך. הסוכן הרלוונטי מסביר בדיוק מה לעשות:</p>
           </div>
@@ -393,7 +393,7 @@
     <div id="stage-monitoring" class="stage hidden">
       <div class="max-w-3xl mx-auto">
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
-          <div class="text-2xl">👨‍💼</div>
+          <img src="agents/daniel.webp" alt="דניאל" class="w-10 h-10 rounded-full object-cover border-2 border-brand-500/20 flex-shrink-0">
           <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
             <p class="text-gray-600 text-sm mt-1">הצוות שומר לך על האתר 24/7. הנה הסטטוס:</p>
           </div>
@@ -429,6 +429,7 @@
     let allTasks = [];
     let currentTaskIdx = 0;
 
+    const AGENT_IMG = id => `agents/${id}.webp`;
     const AGENTS = [
       { id: 'techno', name: 'טכנו', emoji: '🔧', role: 'Technical SEO', status: 'pending', pct: 0 },
       { id: 'keyword', name: 'קיוורד', emoji: '🔑', role: 'Keyword Research', status: 'pending', pct: 0 },
@@ -437,6 +438,7 @@
       { id: 'geo', name: "ג'יאו", emoji: '🤖', role: 'AI Visibility', status: 'pending', pct: 0 },
       { id: 'daniel', name: 'דניאל', emoji: '👨‍💼', role: 'Summary & Roadmap', status: 'pending', pct: 0 },
     ];
+    function agentAvatar(id, size='w-10 h-10') { return `<img src="${AGENT_IMG(id)}" alt="${id}" class="${size} rounded-full object-cover border-2 border-brand-500/20">`; }
 
     // ──── Stage Navigation ────
     function goToStage(stage) {
@@ -535,7 +537,7 @@
         const barColor = a.status === 'done' ? 'from-green-500 to-emerald-400' : 'from-brand-500 to-brand-700';
         const opacity = a.status === 'pending' ? 'opacity-40' : '';
         return `<div class="glass rounded-xl p-3 flex items-center gap-3 transition-all ${opacity} ${a.status === 'working' ? 'progress-pulse' : ''}">
-          <span class="text-xl">${a.emoji}</span>
+          <img src="agents/${a.id}.webp" alt="${a.name}" class="w-9 h-9 rounded-full object-cover border-2 ${a.status==='done'?'border-green-400':'border-brand-500/20'}">`;
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-medium">${a.name} <span class="text-gray-500 font-normal">— ${a.role}</span></span>
