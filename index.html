@@ -456,6 +456,8 @@
     }
 
     // ──── Start Audit ────
+    const DANIEL_WEBHOOK = 'https://hook.eu1.make.com/7bw6ea1zy17arb5injdqej2k92ni76uc';
+
     async function startAudit() {
       const domain = document.getElementById('input-domain').value.trim();
       const name = document.getElementById('input-name').value.trim();
@@ -466,6 +468,19 @@
       document.getElementById('header-domain').textContent = domain;
       goToStage('discovery');
       simulateDiscovery(domain, name);
+
+      // Fire real Daniel webhook in background
+      try {
+        fetch(DANIEL_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client_id: 'nextplace' })
+        }).then(r => r.text()).then(d => {
+          console.log('Daniel completed:', d);
+          // Reload real data when Daniel finishes
+          loadDiagnosis();
+        }).catch(e => console.warn('Daniel webhook error:', e));
+      } catch(e) { console.warn('Failed to trigger Daniel:', e); }
     }
 
     // ──── Discovery Simulation ────
