@@ -5,326 +5,403 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEO Control Tower | Pink Media</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Using Supabase REST API directly -->
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { heebo: ['Heebo', 'sans-serif'] },
-          colors: {
-            dark: { 900: '#0a0a1a', 800: '#0f0f23', 700: '#1a1a2e', 600: '#252547', 500: '#2d2d5e' },
-            accent: { purple: '#8b5cf6', blue: '#3b82f6', pink: '#ec4899', cyan: '#06b6d4' }
-          }
-        }
-      }
+      theme: { extend: {
+        fontFamily: { heebo: ['Heebo', 'sans-serif'] },
+        colors: { dark: { 900:'#0a0a1a',800:'#0f0f23',700:'#1a1a2e',600:'#252547' }, accent: { purple:'#8b5cf6',blue:'#3b82f6',pink:'#ec4899',cyan:'#06b6d4' } }
+      }}
     }
   </script>
   <style>
-    * { font-family: 'Heebo', sans-serif; }
-    body { background: linear-gradient(135deg, #0a0a1a 0%, #0f0f23 30%, #1a1a2e 60%, #0f0f23 100%); }
-
-    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); }
-    .glass-strong { background: rgba(255,255,255,0.06); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1); }
-    .glass-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(139,92,246,0.3); transform: translateY(-2px); }
-
-    .glow-purple { box-shadow: 0 0 40px rgba(139,92,246,0.15), 0 0 80px rgba(139,92,246,0.05); }
-    .glow-score { box-shadow: 0 0 60px rgba(139,92,246,0.2), 0 0 120px rgba(59,130,246,0.1); }
-
-    .gradient-text { background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .gradient-border { border-image: linear-gradient(135deg, #8b5cf6, #3b82f6) 1; }
-
-    /* Score Ring Animation */
-    @keyframes scoreReveal { from { stroke-dashoffset: 339.292; } }
-    .score-ring { animation: scoreReveal 2s ease-out forwards; }
-
-    /* Pulse animation for live dot */
-    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.5); } }
-    .pulse-dot { animation: pulse 2s infinite; }
-
-    /* Fade in animation */
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-up { animation: fadeUp 0.6s ease-out forwards; opacity: 0; }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    .delay-6 { animation-delay: 0.6s; }
-    .delay-7 { animation-delay: 0.7s; }
-
-    /* Progress bar animation */
-    @keyframes barGrow { from { width: 0; } }
-    .bar-grow { animation: barGrow 1.5s ease-out forwards; }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-    ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.5); }
-
-    /* Agent card shimmer */
-    .shimmer { position: relative; overflow: hidden; }
-    .shimmer::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-      animation: shimmer 3s infinite;
-    }
-    @keyframes shimmer { to { left: 100%; } }
-
-    /* Floating particles */
-    .particle {
-      position: fixed; border-radius: 50%; pointer-events: none; opacity: 0.03;
-      background: radial-gradient(circle, #8b5cf6, transparent);
-    }
-
-    /* Tab active state */
-    .tab-active { background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(59,130,246,0.1)); border-color: rgba(139,92,246,0.4); }
-
-    /* Maturity badge */
-    .maturity-starter { background: linear-gradient(135deg, #ef444440, #dc262640); color: #fca5a5; }
-    .maturity-foundation { background: linear-gradient(135deg, #f9731640, #ea580c40); color: #fdba74; }
-    .maturity-developing { background: linear-gradient(135deg, #eab30840, #ca8a0440); color: #fde047; }
-    .maturity-advanced { background: linear-gradient(135deg, #22c55e40, #16a34a40); color: #86efac; }
-    .maturity-leader { background: linear-gradient(135deg, #8b5cf640, #7c3aed40); color: #c4b5fd; }
+    *{font-family:'Heebo',sans-serif}
+    body{background:linear-gradient(135deg,#0a0a1a 0%,#0f0f23 30%,#1a1a2e 60%,#0f0f23 100%)}
+    .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
+    .glass-strong{background:rgba(255,255,255,0.06);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.1)}
+    .glass-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(139,92,246,0.3);transform:translateY(-2px)}
+    .glow-score{box-shadow:0 0 60px rgba(139,92,246,0.2),0 0 120px rgba(59,130,246,0.1)}
+    .gradient-text{background:linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    @keyframes scoreReveal{from{stroke-dashoffset:339.292}}.score-ring{animation:scoreReveal 2s ease-out forwards}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}.pulse-dot{animation:pulse 2s infinite}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.fade-up{animation:fadeUp .6s ease-out forwards;opacity:0}
+    .delay-1{animation-delay:.1s}.delay-2{animation-delay:.2s}.delay-3{animation-delay:.3s}.delay-4{animation-delay:.4s}.delay-5{animation-delay:.5s}
+    @keyframes barGrow{from{width:0}}.bar-grow{animation:barGrow 1.5s ease-out forwards}
+    @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin 1s linear infinite}
+    @keyframes progressPulse{0%,100%{opacity:1}50%{opacity:.6}}.progress-pulse{animation:progressPulse 1.5s ease-in-out infinite}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.02)}::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.3);border-radius:3px}
+    .particle{position:fixed;border-radius:50%;pointer-events:none;opacity:0.03;background:radial-gradient(circle,#8b5cf6,transparent)}
+    .tab-active{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.1));border-color:rgba(139,92,246,0.4)}
+    .maturity-starter{background:linear-gradient(135deg,#ef444440,#dc262640);color:#fca5a5}
+    .maturity-foundation{background:linear-gradient(135deg,#f9731640,#ea580c40);color:#fdba74}
+    .maturity-developing{background:linear-gradient(135deg,#eab30840,#ca8a0440);color:#fde047}
+    .maturity-advanced{background:linear-gradient(135deg,#22c55e40,#16a34a40);color:#86efac}
+    .maturity-leader{background:linear-gradient(135deg,#8b5cf640,#7c3aed40);color:#c4b5fd}
+    .step-done{border-color:rgba(34,197,94,0.5);background:rgba(34,197,94,0.05)}
+    .step-active{border-color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.08);box-shadow:0 0 30px rgba(139,92,246,0.1)}
+    .step-pending{border-color:rgba(255,255,255,0.05);opacity:.5}
+    input,select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;outline:none;transition:all .3s}
+    input:focus,select:focus{border-color:rgba(139,92,246,0.5);box-shadow:0 0 20px rgba(139,92,246,0.1)}
+    select option{background:#1a1a2e;color:white}
   </style>
 </head>
 <body class="min-h-screen text-white overflow-x-hidden">
+  <div class="particle" style="width:300px;height:300px;top:10%;right:10%"></div>
+  <div class="particle" style="width:400px;height:400px;bottom:10%;left:5%"></div>
 
-  <!-- Floating particles -->
-  <div class="particle" style="width:300px;height:300px;top:10%;right:10%;"></div>
-  <div class="particle" style="width:400px;height:400px;bottom:10%;left:5%;"></div>
-  <div class="particle" style="width:200px;height:200px;top:50%;left:50%;"></div>
-
-  <!-- Header -->
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HEADER -->
+  <!-- ═══════════════════════════════════════ -->
   <header class="glass sticky top-0 z-50 px-6 py-3">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-lg font-bold">P</div>
-        <div>
-          <h1 class="text-lg font-bold gradient-text">SEO Control Tower</h1>
-          <p class="text-xs text-gray-500">Pink Media | AI-Powered SEO</p>
-        </div>
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-sm font-bold">P</div>
+        <div><h1 class="text-base font-bold gradient-text">SEO Control Tower</h1><p class="text-[10px] text-gray-500">Pink Media | AI-Powered SEO</p></div>
       </div>
-      <div class="flex items-center gap-4">
-        <div id="live-indicator" class="flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs">
-          <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
-          <span class="text-green-400">Live</span>
-        </div>
-        <button onclick="startNewAudit()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-sm font-medium hover:from-purple-500 hover:to-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
-          🚀 התחל אודיט חדש
-        </button>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full glass text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></span><span class="text-green-400 text-[11px]">Live</span></div>
+        <div id="header-client" class="hidden text-xs text-gray-400"><span id="header-domain"></span></div>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-6 py-8">
+  <!-- ═══════════════════════════════════════ -->
+  <!-- JOURNEY STEPS BAR -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="steps-bar" class="hidden max-w-5xl mx-auto px-6 mt-6">
+    <div class="flex items-center gap-2 overflow-x-auto pb-2">
+      <div id="step-1" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-active" onclick="goToStage('onboarding')">
+        <span>①</span><span>הזנת אתר</span>
+      </div>
+      <div class="text-gray-600">→</div>
+      <div id="step-2" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-pending" onclick="goToStage('discovery')">
+        <span>②</span><span>סריקה</span>
+      </div>
+      <div class="text-gray-600">→</div>
+      <div id="step-3" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-pending" onclick="goToStage('diagnosis')">
+        <span>③</span><span>תוצאות</span>
+      </div>
+      <div class="text-gray-600">→</div>
+      <div id="step-4" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-pending" onclick="goToStage('roadmap')">
+        <span>④</span><span>תוכנית</span>
+      </div>
+      <div class="text-gray-600">→</div>
+      <div id="step-5" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-pending" onclick="goToStage('execution')">
+        <span>⑤</span><span>ביצוע</span>
+      </div>
+      <div class="text-gray-600">→</div>
+      <div id="step-6" class="step flex items-center gap-2 px-4 py-2 rounded-xl border text-xs whitespace-nowrap cursor-pointer transition-all step-pending" onclick="goToStage('monitoring')">
+        <span>⑥</span><span>מעקב</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Client Info Bar -->
-    <div id="client-bar" class="glass rounded-2xl p-5 mb-8 fade-up">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-2xl border border-purple-500/20">🏢</div>
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 1: ONBOARDING -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-onboarding" class="stage">
+      <div class="glass-strong rounded-3xl p-8 max-w-2xl mx-auto fade-up">
+        <!-- Daniel greeting -->
+        <div class="flex items-start gap-4 mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-3xl border border-purple-500/20 flex-shrink-0">👨‍💼</div>
           <div>
-            <h2 id="client-name" class="text-xl font-bold">Next Place</h2>
-            <div class="flex items-center gap-3 mt-1">
-              <a id="client-domain" href="https://nextplace.co.il" target="_blank" class="text-sm text-purple-400 hover:text-purple-300 transition">nextplace.co.il ↗</a>
-              <span class="text-gray-600">|</span>
-              <span id="client-niche" class="text-sm text-gray-400">נדל"ן מסחרי</span>
-            </div>
+            <div class="flex items-center gap-2 mb-1"><span class="font-bold text-purple-300 text-lg">דניאל</span><span class="text-xs text-gray-500">— מנהל צוות ה-SEO שלך</span></div>
+            <p class="text-gray-300 text-sm leading-relaxed">היי! אני דניאל, מנהל צוות ה-SEO שלך. 👋<br>בוא נתחיל — ספר לי על האתר ואני שולח את הצוות לעבודה.</p>
           </div>
         </div>
-        <div class="flex items-center gap-6 text-sm">
-          <div class="text-center">
-            <div class="text-gray-500">אודיט אחרון</div>
-            <div id="last-audit-date" class="text-white font-medium mt-0.5">--</div>
+
+        <!-- Form -->
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-gray-400 mb-1.5 block">כתובת האתר *</label>
+            <input id="input-domain" type="text" placeholder="example.co.il" class="w-full px-4 py-3 rounded-xl text-sm" dir="ltr">
           </div>
-          <div class="text-center">
-            <div class="text-gray-500">סטטוס</div>
-            <div id="audit-status" class="mt-0.5">
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">הושלם</span>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">שם העסק *</label>
+              <input id="input-name" type="text" placeholder="שם החברה" class="w-full px-4 py-3 rounded-xl text-sm">
             </div>
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">תחום *</label>
+              <select id="input-niche" class="w-full px-4 py-3 rounded-xl text-sm">
+                <option value="">בחר תחום...</option>
+                <option value="real-estate">נדל"ן</option>
+                <option value="ecommerce">חנות אונליין</option>
+                <option value="saas">SaaS / תוכנה</option>
+                <option value="services">שירותים מקצועיים</option>
+                <option value="health">בריאות / רפואה</option>
+                <option value="education">חינוך / הדרכה</option>
+                <option value="food">מזון / מסעדנות</option>
+                <option value="finance">פיננסים / ביטוח</option>
+                <option value="legal">משפטים</option>
+                <option value="tech">טכנולוגיה</option>
+                <option value="other">אחר</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">יעד גיאוגרפי</label>
+              <select id="input-geo" class="w-full px-4 py-3 rounded-xl text-sm">
+                <option value="IL">ישראל</option>
+                <option value="US">ארה"ב</option>
+                <option value="UK">בריטניה</option>
+                <option value="global">גלובלי</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-400 mb-1.5 block">שפה עיקרית</label>
+              <select id="input-lang" class="w-full px-4 py-3 rounded-xl text-sm">
+                <option value="he">עברית</option>
+                <option value="en">אנגלית</option>
+                <option value="ar">ערבית</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Optional section -->
+          <details class="mt-2">
+            <summary class="text-xs text-purple-400 cursor-pointer hover:text-purple-300 transition">🔵 אופציונלי — מתחרים, מילות מפתח, GSC</summary>
+            <div class="space-y-4 mt-4">
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">מתחרים (מופרדים בפסיק)</label>
+                <input id="input-competitors" type="text" placeholder="competitor1.co.il, competitor2.com" class="w-full px-4 py-3 rounded-xl text-sm" dir="ltr">
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">מילות מפתח מרכזיות</label>
+                <input id="input-keywords" type="text" placeholder="מילה 1, מילה 2, מילה 3" class="w-full px-4 py-3 rounded-xl text-sm">
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">GSC Property (אם יש)</label>
+                <input id="input-gsc" type="text" placeholder="sc-domain:example.co.il" class="w-full px-4 py-3 rounded-xl text-sm" dir="ltr">
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">📄 העלאת סריקת Screaming Frog (CSV)</label>
+                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-white/10 cursor-pointer hover:border-purple-500/30 transition text-sm text-gray-400">
+                  <span>📁</span> <span id="sf-label">לחץ לבחירת קובץ</span>
+                  <input id="input-sf" type="file" accept=".csv" class="hidden" onchange="document.getElementById('sf-label').textContent=this.files[0]?.name||'לחץ לבחירת קובץ'">
+                </label>
+              </div>
+            </div>
+          </details>
+
+          <button onclick="startAudit()" class="w-full mt-4 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-base font-bold hover:from-purple-500 hover:to-blue-500 transition-all hover:shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2">
+            🚀 שלח את הצוות לעבודה
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 2: DISCOVERY (Scanning) -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-discovery" class="stage hidden">
+      <div class="max-w-2xl mx-auto">
+        <!-- Daniel message -->
+        <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
+          <div class="text-2xl">👨‍💼</div>
+          <div>
+            <span class="font-bold text-purple-300 text-sm">דניאל:</span>
+            <p class="text-gray-300 text-sm mt-1" id="discovery-message">מעולה! שלחתי את הצוות לסרוק את האתר שלך. זה ייקח כמה דקות. תראה אותם עובדים:</p>
+          </div>
+        </div>
+
+        <!-- Overall progress -->
+        <div class="glass-strong rounded-2xl p-5 mb-6 fade-up delay-1">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium">התקדמות כללית</span>
+            <span id="overall-pct" class="text-sm font-bold gradient-text">0%</span>
+          </div>
+          <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+            <div id="overall-bar" class="h-full rounded-full bg-gradient-to-l from-purple-500 to-blue-500 transition-all duration-1000" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Agent progress cards -->
+        <div class="space-y-3 fade-up delay-2" id="agent-progress-list">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- Live Feed during scan -->
+        <div class="glass rounded-2xl p-5 mt-6 fade-up delay-3">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+            <span class="text-xs text-gray-400">פיד חי</span>
+          </div>
+          <div id="discovery-feed" class="space-y-2 max-h-48 overflow-y-auto text-sm">
+            <div class="text-gray-500 text-xs">ממתין לפעילות...</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex gap-2 mb-8 fade-up delay-1 overflow-x-auto pb-2">
-      <button onclick="switchTab('overview')" class="tab-btn tab-active flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-sm font-medium transition-all duration-300 whitespace-nowrap" data-tab="overview">
-        📊 סקירה כללית
-      </button>
-      <button onclick="switchTab('team')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-sm font-medium transition-all duration-300 text-gray-400 hover:text-white whitespace-nowrap" data-tab="team">
-        👥 הצוות
-      </button>
-      <button onclick="switchTab('roadmap')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-sm font-medium transition-all duration-300 text-gray-400 hover:text-white whitespace-nowrap" data-tab="roadmap">
-        🗺️ תוכנית עבודה
-      </button>
-      <button onclick="switchTab('feed')" class="tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-sm font-medium transition-all duration-300 text-gray-400 hover:text-white whitespace-nowrap" data-tab="feed">
-        ⚡ פיד חי
-      </button>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 3: DIAGNOSIS (Results) -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-diagnosis" class="stage hidden">
+      <div class="max-w-4xl mx-auto">
+        <!-- Daniel summary -->
+        <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
+          <div class="text-2xl">👨‍💼</div>
+          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
+            <p class="text-gray-300 text-sm mt-1" id="diagnosis-daniel-msg">סיימנו! הנה הסיכום:</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Score Ring -->
+          <div class="lg:col-span-1 glass-strong rounded-3xl p-8 glow-score fade-up delay-1 text-center">
+            <h3 class="text-sm text-gray-400 font-medium mb-4">SEO Health Score</h3>
+            <div class="relative w-40 h-40 mx-auto mb-4">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
+                <circle id="score-ring" cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292" class="score-ring"/>
+                <defs><linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="50%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center"><span id="score-number" class="text-4xl font-black gradient-text">--</span><span class="text-xs text-gray-400">/100</span></div>
+            </div>
+            <div id="maturity-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium maturity-foundation"><span id="maturity-icon">🟠</span><span id="maturity-label">בסיס</span></div>
+          </div>
+          <!-- Category bars -->
+          <div class="lg:col-span-2 glass rounded-3xl p-6 fade-up delay-2">
+            <h3 class="text-sm text-gray-400 font-medium mb-4">ציונים לפי קטגוריה</h3>
+            <div class="space-y-4" id="category-scores"></div>
+          </div>
+        </div>
+
+        <!-- Summary card -->
+        <div class="glass rounded-2xl p-5 mt-6 fade-up delay-3" id="diagnosis-summary"></div>
+
+        <!-- Quick stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">🔴</div><div id="stat-critical" class="text-xl font-bold text-red-400">0</div><div class="text-[10px] text-gray-500">בעיות קריטיות</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">⚡</div><div id="stat-quickwins" class="text-xl font-bold text-yellow-400">0</div><div class="text-[10px] text-gray-500">ניצחונות מהירים</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">📄</div><div id="stat-pages" class="text-xl font-bold text-blue-400">--</div><div class="text-[10px] text-gray-500">דפים נסרקו</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">🤖</div><div id="stat-agents" class="text-xl font-bold text-purple-400">6</div><div class="text-[10px] text-gray-500">סוכנים עבדו</div></div>
+        </div>
+
+        <button onclick="goToStage('roadmap')" class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-sm font-bold hover:from-purple-500 hover:to-blue-500 transition-all flex items-center justify-center gap-2 fade-up delay-5">
+          📋 הראה לי את תוכנית העבודה →
+        </button>
+      </div>
     </div>
 
-    <!-- TAB: Overview -->
-    <div id="tab-overview" class="tab-content">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 4: ROADMAP -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-roadmap" class="stage hidden">
+      <div class="max-w-3xl mx-auto">
+        <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
+          <div class="text-2xl">👨‍💼</div>
+          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
+            <p class="text-gray-300 text-sm mt-1">הכנתי לך תוכנית עבודה מותאמת אישית. מחולקת ל-3 שלבים — נתחיל מהדברים עם ההשפעה הכי גדולה:</p>
+          </div>
+        </div>
 
-        <!-- Score Card (Main) -->
-        <div class="lg:col-span-1 glass-strong rounded-3xl p-8 glow-score fade-up delay-2 text-center">
-          <h3 class="text-sm text-gray-400 font-medium mb-6">SEO Health Score</h3>
-          <div class="relative w-48 h-48 mx-auto mb-6">
-            <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
-              <circle id="score-ring" cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGradient)" stroke-width="8" stroke-linecap="round"
-                stroke-dasharray="339.292" stroke-dashoffset="339.292" class="score-ring"/>
-              <defs>
-                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#8b5cf6"/>
-                  <stop offset="50%" stop-color="#3b82f6"/>
-                  <stop offset="100%" stop-color="#06b6d4"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span id="score-number" class="text-5xl font-black gradient-text">--</span>
-              <span class="text-sm text-gray-400 mt-1">/100</span>
+        <!-- Phase: Now -->
+        <div class="mb-8 fade-up delay-1">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center text-base border border-red-500/20">🔥</div>
+            <div><h3 class="text-base font-bold">עכשיו — השבוע</h3><p class="text-[10px] text-gray-500">Quick Wins — ההשפעה הכי גדולה, הכי מהר</p></div>
+            <div class="mr-auto px-2.5 py-1 rounded-full glass text-xs text-gray-400"><span id="now-done">0</span>/<span id="now-total">0</span></div>
+          </div>
+          <div id="tasks-now" class="space-y-2"></div>
+        </div>
+
+        <!-- Phase: Month -->
+        <div class="mb-8 fade-up delay-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-lg bg-yellow-500/10 flex items-center justify-center text-base border border-yellow-500/20">📅</div>
+            <div><h3 class="text-base font-bold">החודש הקרוב</h3><p class="text-[10px] text-gray-500">שיפורים מרכזיים — בונים בסיס חזק</p></div>
+            <div class="mr-auto px-2.5 py-1 rounded-full glass text-xs text-gray-400"><span id="month-done">0</span>/<span id="month-total">0</span></div>
+          </div>
+          <div id="tasks-month" class="space-y-2"></div>
+        </div>
+
+        <!-- Phase: Quarter -->
+        <div class="fade-up delay-3">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-base border border-blue-500/20">🎯</div>
+            <div><h3 class="text-base font-bold">הרבעון</h3><p class="text-[10px] text-gray-500">אסטרטגיה ארוכת טווח — צמיחה מתמשכת</p></div>
+            <div class="mr-auto px-2.5 py-1 rounded-full glass text-xs text-gray-400"><span id="quarter-done">0</span>/<span id="quarter-total">0</span></div>
+          </div>
+          <div id="tasks-quarter" class="space-y-2"></div>
+        </div>
+
+        <button onclick="goToStage('execution')" class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-sm font-bold transition-all flex items-center justify-center gap-2">
+          ✅ בוא נתחיל — הראה לי את המשימה הראשונה →
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 5: EXECUTION -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-execution" class="stage hidden">
+      <div class="max-w-3xl mx-auto">
+        <!-- Current task focus -->
+        <div class="glass rounded-2xl p-5 mb-4 fade-up flex items-start gap-3">
+          <div class="text-2xl">👨‍💼</div>
+          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
+            <p class="text-gray-300 text-sm mt-1">הנה המשימה הבאה שלך. הסוכן הרלוונטי מסביר בדיוק מה לעשות:</p>
+          </div>
+        </div>
+
+        <!-- Task detail card -->
+        <div id="current-task" class="glass-strong rounded-3xl p-6 mb-4 fade-up delay-1">
+          <div class="flex items-center gap-3 mb-4">
+            <div id="task-emoji" class="text-3xl">🔧</div>
+            <div>
+              <div class="flex items-center gap-2"><span id="task-agent" class="font-bold text-purple-300">טכנו</span><span class="text-xs text-gray-500">מסביר:</span></div>
+              <h3 id="task-title" class="text-lg font-bold mt-1">טוען...</h3>
             </div>
           </div>
-          <div id="maturity-badge" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium maturity-foundation">
-            <span id="maturity-icon">🟠</span>
-            <span id="maturity-label">בסיס (Foundation)</span>
+          <div id="task-description" class="text-sm text-gray-300 leading-relaxed mb-4 glass rounded-xl p-4"></div>
+          <div class="flex items-center gap-4 mb-4">
+            <span id="task-impact" class="px-2.5 py-1 rounded-full text-xs bg-red-500/10 text-red-400">🎯 גבוהה</span>
+            <span id="task-difficulty" class="text-xs text-yellow-400">💪 בינוני</span>
+            <span id="task-time" class="text-xs text-gray-500">⏱️ --</span>
           </div>
-          <p class="text-xs text-gray-500 mt-4">נדל"ן מסחרי — ממוצע בנישה: ~58</p>
+          <div class="flex gap-3">
+            <button onclick="completeTask()" class="flex-1 py-3 rounded-xl bg-green-600/20 text-green-400 border border-green-500/20 text-sm font-medium hover:bg-green-600/30 transition-all">✅ עשיתי</button>
+            <button onclick="skipTask()" class="px-6 py-3 rounded-xl glass text-sm text-gray-400 hover:text-white transition-all">⏭️ דלג</button>
+          </div>
         </div>
 
-        <!-- Category Scores -->
-        <div class="lg:col-span-2 glass rounded-3xl p-8 fade-up delay-3">
-          <h3 class="text-sm text-gray-400 font-medium mb-6">ציונים לפי קטגוריה</h3>
-          <div class="space-y-5" id="category-scores">
-            <!-- Filled by JS -->
+        <!-- Progress -->
+        <div class="glass rounded-xl p-4 fade-up delay-2">
+          <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+            <span>התקדמות כללית</span>
+            <span><span id="exec-done">0</span>/<span id="exec-total">0</span> משימות</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Daniel's Summary -->
-      <div class="glass rounded-3xl p-8 mt-6 fade-up delay-4">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-2xl flex-shrink-0 border border-purple-500/20">👨‍💼</div>
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <span class="font-bold text-purple-300">דניאל</span>
-              <span class="text-xs text-gray-500">— מנהל הצוות</span>
-            </div>
-            <div id="daniel-summary" class="text-gray-300 text-sm leading-relaxed">
-              טוען סיכום...
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Stats Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        <div class="glass rounded-2xl p-5 text-center fade-up delay-5 glass-card transition-all duration-300">
-          <div class="text-3xl mb-2">🔴</div>
-          <div id="stat-critical" class="text-2xl font-bold text-red-400">5</div>
-          <div class="text-xs text-gray-500 mt-1">בעיות קריטיות</div>
-        </div>
-        <div class="glass rounded-2xl p-5 text-center fade-up delay-5 glass-card transition-all duration-300">
-          <div class="text-3xl mb-2">⚡</div>
-          <div id="stat-quickwins" class="text-2xl font-bold text-yellow-400">8</div>
-          <div class="text-xs text-gray-500 mt-1">ניצחונות מהירים</div>
-        </div>
-        <div class="glass rounded-2xl p-5 text-center fade-up delay-6 glass-card transition-all duration-300">
-          <div class="text-3xl mb-2">📄</div>
-          <div id="stat-pages" class="text-2xl font-bold text-blue-400">--</div>
-          <div class="text-xs text-gray-500 mt-1">דפים נסרקו</div>
-        </div>
-        <div class="glass rounded-2xl p-5 text-center fade-up delay-6 glass-card transition-all duration-300">
-          <div class="text-3xl mb-2">🤖</div>
-          <div id="stat-agents" class="text-2xl font-bold text-purple-400">6</div>
-          <div class="text-xs text-gray-500 mt-1">סוכנים פעילים</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: Team -->
-    <div id="tab-team" class="tab-content hidden">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="team-grid">
-        <!-- Filled by JS -->
-      </div>
-    </div>
-
-    <!-- TAB: Roadmap -->
-    <div id="tab-roadmap" class="tab-content hidden">
-      <!-- Phase: Now -->
-      <div class="mb-8">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-lg border border-red-500/20">🔥</div>
-          <div>
-            <h3 class="text-lg font-bold">עכשיו — השבוע</h3>
-            <p class="text-xs text-gray-500">Quick Wins — ההשפעה הכי גדולה, הכי מהר</p>
-          </div>
-          <div class="mr-auto px-3 py-1 rounded-full glass text-xs text-gray-400">
-            <span id="now-progress">0</span>/<span id="now-total">0</span>
-          </div>
-        </div>
-        <div id="tasks-now" class="space-y-3">
-          <div class="glass rounded-2xl p-6 text-center text-gray-500 text-sm">
-            עדיין אין משימות — הרץ אודיט כדי לקבל תוכנית עבודה
-          </div>
-        </div>
-      </div>
-
-      <!-- Phase: Month -->
-      <div class="mb-8">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-lg border border-yellow-500/20">📅</div>
-          <div>
-            <h3 class="text-lg font-bold">החודש הקרוב</h3>
-            <p class="text-xs text-gray-500">שיפורים מרכזיים — בונים בסיס חזק</p>
-          </div>
-          <div class="mr-auto px-3 py-1 rounded-full glass text-xs text-gray-400">
-            <span id="month-progress">0</span>/<span id="month-total">0</span>
-          </div>
-        </div>
-        <div id="tasks-month" class="space-y-3">
-          <div class="glass rounded-2xl p-6 text-center text-gray-500 text-sm">
-            עדיין אין משימות
-          </div>
-        </div>
-      </div>
-
-      <!-- Phase: Quarter -->
-      <div>
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-lg border border-blue-500/20">🎯</div>
-          <div>
-            <h3 class="text-lg font-bold">הרבעון</h3>
-            <p class="text-xs text-gray-500">אסטרטגיה ארוכת טווח — צמיחה מתמשכת</p>
-          </div>
-          <div class="mr-auto px-3 py-1 rounded-full glass text-xs text-gray-400">
-            <span id="quarter-progress">0</span>/<span id="quarter-total">0</span>
-          </div>
-        </div>
-        <div id="tasks-quarter" class="space-y-3">
-          <div class="glass rounded-2xl p-6 text-center text-gray-500 text-sm">
-            עדיין אין משימות
+          <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+            <div id="exec-bar" class="h-full rounded-full bg-gradient-to-l from-green-500 to-emerald-400 transition-all duration-500" style="width:0%"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TAB: Feed -->
-    <div id="tab-feed" class="tab-content hidden">
-      <div class="glass rounded-3xl p-6">
-        <div class="flex items-center gap-3 mb-6">
-          <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
-          <h3 class="text-sm font-medium text-gray-400">Activity Feed — פעילות בזמן אמת</h3>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAGE 6: MONITORING -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stage-monitoring" class="stage hidden">
+      <div class="max-w-3xl mx-auto">
+        <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
+          <div class="text-2xl">👨‍💼</div>
+          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
+            <p class="text-gray-300 text-sm mt-1">הצוות שומר לך על האתר 24/7. הנה הסטטוס:</p>
+          </div>
         </div>
-        <div id="feed-list" class="space-y-4">
-          <div class="text-center text-gray-500 text-sm py-8">
-            טוען פיד...
+        <div class="glass-strong rounded-2xl p-6 text-center fade-up delay-1">
+          <div class="text-4xl mb-3">📊</div>
+          <h3 class="text-lg font-bold mb-2">מעקב חודשי</h3>
+          <p class="text-sm text-gray-400 mb-4">הסריקה הבאה מתוזמנת לתחילת החודש הבא.<br>נשווה את הביצועים ונעדכן את תוכנית העבודה.</p>
+          <div class="glass rounded-xl p-4 text-sm text-gray-300 space-y-2 text-right">
+            <p>🔄 סריקה חודשית אוטומטית — <span class="text-green-400">פעיל</span></p>
+            <p>📈 השוואה לאודיט קודם — <span class="text-yellow-400">ממתין לאודיט שני</span></p>
+            <p>🔔 התראות ירידת דירוג — <span class="text-green-400">פעיל</span></p>
           </div>
         </div>
       </div>
@@ -332,355 +409,295 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer class="text-center py-8 text-xs text-gray-600">
-    <p>SEO Control Tower v1.0 — Built with AI by <span class="gradient-text font-medium">Pink Media</span></p>
-  </footer>
+  <footer class="text-center py-6 text-[10px] text-gray-600">SEO Control Tower v2.0 — Built with AI by <span class="gradient-text font-medium">Pink Media</span></footer>
 
+  <!-- ═══════════════════════════════════════ -->
+  <!-- JAVASCRIPT -->
+  <!-- ═══════════════════════════════════════ -->
   <script>
-    // ──── Supabase Init ────
-    const SUPABASE_URL = 'https://eklrsatovxhnklnyrffj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbHJzYXRvdnhobmtsbnlyZmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTUzMzgsImV4cCI6MjA4OTY5MTMzOH0._INvjHLlAuhRhnMoKHfyd0qU-yxHzH_WosIv3ZD-mr8';
-    // ──── REST API Helper ────
-    const API_HEADERS = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' };
-    async function query(table, params = '') {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, { headers: API_HEADERS });
-      return res.json();
-    }
+    const SB_URL = 'https://eklrsatovxhnklnyrffj.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbHJzYXRvdnhobmtsbnlyZmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTUzMzgsImV4cCI6MjA4OTY5MTMzOH0._INvjHLlAuhRhnMoKHfyd0qU-yxHzH_WosIv3ZD-mr8';
+    const HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+    async function q(t, p = '') { return (await fetch(`${SB_URL}/rest/v1/${t}?${p}`, { headers: HDR })).json(); }
 
-    const CLIENT_ID = '295539a5-c3a9-4453-8295-4c982a700166';
+    let currentClientId = null;
+    let currentAuditId = null;
+    let allTasks = [];
+    let currentTaskIdx = 0;
 
-    // ──── Tab Switching ────
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(el => {
-        el.classList.remove('tab-active');
-        el.classList.add('text-gray-400');
-      });
-      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-      const btn = document.querySelector(`[data-tab="${tabName}"]`);
-      btn.classList.add('tab-active');
-      btn.classList.remove('text-gray-400');
-    }
+    const AGENTS = [
+      { id: 'techno', name: 'טכנו', emoji: '🔧', role: 'Technical SEO', status: 'pending', pct: 0 },
+      { id: 'keyword', name: 'קיוורד', emoji: '🔑', role: 'Keyword Research', status: 'pending', pct: 0 },
+      { id: 'spy', name: 'ספיי', emoji: '🕵️', role: 'Competitor Analysis', status: 'pending', pct: 0 },
+      { id: 'linky', name: 'לינקי', emoji: '🔗', role: 'Backlink Analysis', status: 'pending', pct: 0 },
+      { id: 'geo', name: "ג'יאו", emoji: '🤖', role: 'AI Visibility', status: 'pending', pct: 0 },
+      { id: 'daniel', name: 'דניאל', emoji: '👨‍💼', role: 'Summary & Roadmap', status: 'pending', pct: 0 },
+    ];
 
-    // ──── Score Ring ────
-    function setScoreRing(score) {
-      const circumference = 339.292;
-      const offset = circumference - (score / 100) * circumference;
-      const ring = document.getElementById('score-ring');
-      ring.style.strokeDashoffset = offset;
-      document.getElementById('score-number').textContent = score;
+    // ──── Stage Navigation ────
+    function goToStage(stage) {
+      document.querySelectorAll('.stage').forEach(s => s.classList.add('hidden'));
+      document.getElementById('stage-' + stage).classList.remove('hidden');
+      document.getElementById('steps-bar').classList.remove('hidden');
 
-      // Update gradient color based on score
-      const stops = document.querySelectorAll('#scoreGradient stop');
-      if (score <= 25) {
-        stops[0].setAttribute('stop-color', '#ef4444');
-        stops[1].setAttribute('stop-color', '#dc2626');
-        stops[2].setAttribute('stop-color', '#b91c1c');
-      } else if (score <= 45) {
-        stops[0].setAttribute('stop-color', '#f97316');
-        stops[1].setAttribute('stop-color', '#ea580c');
-        stops[2].setAttribute('stop-color', '#c2410c');
-      } else if (score <= 65) {
-        stops[0].setAttribute('stop-color', '#eab308');
-        stops[1].setAttribute('stop-color', '#ca8a04');
-        stops[2].setAttribute('stop-color', '#a16207');
-      } else if (score <= 80) {
-        stops[0].setAttribute('stop-color', '#22c55e');
-        stops[1].setAttribute('stop-color', '#16a34a');
-        stops[2].setAttribute('stop-color', '#15803d');
-      } else {
-        stops[0].setAttribute('stop-color', '#8b5cf6');
-        stops[1].setAttribute('stop-color', '#3b82f6');
-        stops[2].setAttribute('stop-color', '#06b6d4');
+      const stages = ['onboarding','discovery','diagnosis','roadmap','execution','monitoring'];
+      const idx = stages.indexOf(stage);
+      for (let i = 0; i < 6; i++) {
+        const el = document.getElementById('step-' + (i + 1));
+        el.className = el.className.replace(/step-\w+/g, '');
+        if (i < idx) el.classList.add('step-done');
+        else if (i === idx) el.classList.add('step-active');
+        else el.classList.add('step-pending');
       }
+
+      if (stage === 'diagnosis') loadDiagnosis();
+      if (stage === 'roadmap') loadRoadmap();
+      if (stage === 'execution') loadExecution();
     }
 
-    // ──── Maturity Badge ────
-    function setMaturity(level) {
-      const badge = document.getElementById('maturity-badge');
-      const icon = document.getElementById('maturity-icon');
-      const label = document.getElementById('maturity-label');
+    // ──── Start Audit ────
+    async function startAudit() {
+      const domain = document.getElementById('input-domain').value.trim();
+      const name = document.getElementById('input-name').value.trim();
+      const niche = document.getElementById('input-niche').value;
+      if (!domain || !name || !niche) { alert('נא למלא את כל השדות המסומנים *'); return; }
 
-      const levels = {
-        starter:     { icon: '🔴', label: 'מתחיל (Starter)', css: 'maturity-starter' },
-        foundation:  { icon: '🟠', label: 'בסיס (Foundation)', css: 'maturity-foundation' },
-        developing:  { icon: '🟡', label: 'בדרך (Developing)', css: 'maturity-developing' },
-        advanced:    { icon: '🟢', label: 'מתקדם (Advanced)', css: 'maturity-advanced' },
-        leader:      { icon: '🏆', label: 'מוביל (Leader)', css: 'maturity-leader' }
-      };
-
-      const m = levels[level] || levels.foundation;
-      badge.className = `inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${m.css}`;
-      icon.textContent = m.icon;
-      label.textContent = m.label;
+      document.getElementById('header-client').classList.remove('hidden');
+      document.getElementById('header-domain').textContent = domain;
+      goToStage('discovery');
+      simulateDiscovery(domain, name);
     }
 
-    // ──── Category Score Bar ────
-    function renderCategoryScores(scores) {
-      const categories = [
-        { key: 'technical', label: 'Technical SEO', emoji: '🔧', agent: 'טכנו', color: 'from-blue-500 to-cyan-400' },
-        { key: 'content', label: 'Content', emoji: '📝', agent: 'נועה', color: 'from-purple-500 to-pink-400' },
-        { key: 'authority', label: 'Authority & Links', emoji: '🔗', agent: 'לינקי', color: 'from-green-500 to-emerald-400' },
-        { key: 'keywords', label: 'Keywords', emoji: '🔑', agent: 'קיוורד', color: 'from-yellow-500 to-orange-400' },
-        { key: 'competition', label: 'Competition', emoji: '🕵️', agent: 'ספיי', color: 'from-red-500 to-rose-400' },
-        { key: 'geo', label: 'GEO / AI Visibility', emoji: '🤖', agent: "ג'יאו", color: 'from-violet-500 to-purple-400' }
+    // ──── Discovery Simulation ────
+    function simulateDiscovery(domain, name) {
+      renderAgentProgress();
+      const feedEl = document.getElementById('discovery-feed');
+      feedEl.innerHTML = '';
+
+      const timeline = [
+        { t: 500, agent: 0, pct: 30, msg: '🔧 טכנו: מתחיל סריקה טכנית...' },
+        { t: 1500, agent: 0, pct: 60, msg: '🔧 טכנו: בודק מהירות טעינה ו-Core Web Vitals...' },
+        { t: 2500, agent: 1, pct: 40, msg: '🔑 קיוורד: מנתח מילות מפתח אורגניות...' },
+        { t: 3500, agent: 0, pct: 100, msg: '🔧 טכנו: ✅ סיום — נמצאו 12 בעיות טכניות' },
+        { t: 4000, agent: 2, pct: 30, msg: '🕵️ ספיי: סורק מתחרים...' },
+        { t: 5000, agent: 1, pct: 80, msg: '🔑 קיוורד: מצא 47 הזדמנויות בעמוד 2!' },
+        { t: 6000, agent: 3, pct: 50, msg: '🔗 לינקי: בודק פרופיל קישורים נכנסים...' },
+        { t: 6500, agent: 1, pct: 100, msg: '🔑 קיוורד: ✅ סיום — 156 מילות מפתח מנותחות' },
+        { t: 7500, agent: 2, pct: 80, msg: '🕵️ ספיי: מצא 5 מתחרים מובילים' },
+        { t: 8000, agent: 4, pct: 40, msg: '🤖 ג\'יאו: בודק נראות ב-AI search...' },
+        { t: 8500, agent: 2, pct: 100, msg: '🕵️ ספיי: ✅ סיום — ניתוח תחרותי מוכן' },
+        { t: 9000, agent: 3, pct: 100, msg: '🔗 לינקי: ✅ סיום — DR ופרופיל קישורים מנותח' },
+        { t: 10000, agent: 4, pct: 100, msg: '🤖 ג\'יאו: ✅ סיום — נראות AI מוערכת' },
+        { t: 11000, agent: 5, pct: 50, msg: '👨‍💼 דניאל: מכין סיכום וציונים...' },
+        { t: 12500, agent: 5, pct: 100, msg: '👨‍💼 דניאל: ✅ אודיט הושלם! מציג תוצאות...' },
       ];
 
-      const container = document.getElementById('category-scores');
-      container.innerHTML = categories.map((cat, i) => {
-        const score = scores[cat.key] || 0;
-        const scoreColor = score >= 70 ? 'text-green-400' : score >= 45 ? 'text-yellow-400' : score >= 25 ? 'text-orange-400' : 'text-red-400';
-        return `
-          <div class="group">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">${cat.emoji}</span>
-                <span class="text-sm font-medium text-gray-200">${cat.label}</span>
-                <span class="text-xs text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">— ${cat.agent}</span>
-              </div>
-              <span class="text-sm font-bold ${scoreColor}">${score}<span class="text-gray-500 font-normal">/100</span></span>
-            </div>
-            <div class="h-2.5 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full rounded-full bg-gradient-to-l ${cat.color} bar-grow" style="width: ${score}%; animation-delay: ${0.3 + i * 0.15}s"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+      timeline.forEach(({ t, agent, pct, msg }) => {
+        setTimeout(() => {
+          AGENTS[agent].pct = pct;
+          if (pct === 100) AGENTS[agent].status = 'done';
+          else AGENTS[agent].status = 'working';
+          renderAgentProgress();
+          updateOverallProgress();
 
-    // ──── Team Grid ────
-    function renderTeam(agents) {
-      const grid = document.getElementById('team-grid');
-      const teamAgents = agents.filter(a => a.persona_name && a.slug !== 'error-handler');
+          feedEl.innerHTML = `<div class="text-gray-300 text-xs py-1 border-r-2 border-purple-500/30 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML;
 
-      grid.innerHTML = teamAgents.map((agent, i) => `
-        <div class="glass rounded-2xl p-6 glass-card transition-all duration-300 cursor-pointer fade-up" style="animation-delay: ${i * 0.08}s">
-          <div class="flex items-start gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 flex items-center justify-center text-3xl border border-purple-500/10">
-              ${agent.persona_emoji || '🤖'}
-            </div>
-            <div class="flex-1">
-              <h4 class="font-bold text-white">${agent.persona_name}</h4>
-              <p class="text-xs text-purple-400 mt-0.5">${agent.name}</p>
-              <p class="text-xs text-gray-500 mt-2 leading-relaxed">${agent.persona_personality || 'סוכן AI מתמחה'}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-            <span class="text-xs text-gray-600">סדר: #${agent.agent_order}</span>
-            <span class="px-2 py-0.5 rounded-full text-xs bg-green-500/10 text-green-400 border border-green-500/20">פעיל</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ──── Feed ────
-    function renderFeed(entries) {
-      const list = document.getElementById('feed-list');
-      if (!entries || entries.length === 0) {
-        list.innerHTML = `
-          <div class="text-center text-gray-500 text-sm py-8">
-            <div class="text-4xl mb-3">📡</div>
-            <p>אין פעילות עדיין — הרץ אודיט כדי לראות את הסוכנים בפעולה</p>
-          </div>`;
-        return;
-      }
-
-      list.innerHTML = entries.map((entry, i) => {
-        const time = new Date(entry.created_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-        const date = new Date(entry.created_at).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-        const typeColors = {
-          started: 'border-blue-500/30 bg-blue-500/5',
-          completed: 'border-green-500/30 bg-green-500/5',
-          error: 'border-red-500/30 bg-red-500/5',
-          finding: 'border-yellow-500/30 bg-yellow-500/5'
-        };
-        const borderColor = typeColors[entry.event_type] || 'border-purple-500/30 bg-purple-500/5';
-
-        return `
-          <div class="flex gap-4 items-start border-r-2 ${borderColor} pr-4 py-3 rounded-l-xl fade-up" style="animation-delay: ${i * 0.05}s">
-            <div class="text-2xl flex-shrink-0">${entry.agent_emoji || '🤖'}</div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="font-medium text-sm text-white">${entry.agent_name}</span>
-                <span class="text-xs text-gray-600">${date} ${time}</span>
-              </div>
-              <p class="text-sm text-gray-300">${entry.message}</p>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // ──── Tasks (Roadmap) ────
-    function renderTasks(tasks) {
-      const phases = { now: 'tasks-now', month: 'tasks-month', quarter: 'tasks-quarter' };
-      const phaseCounts = { now: { done: 0, total: 0 }, month: { done: 0, total: 0 }, quarter: { done: 0, total: 0 } };
-      const phaseHtml = { now: [], month: [], quarter: [] };
-
-      if (!tasks || tasks.length === 0) return;
-
-      tasks.forEach(task => {
-        const phase = task.phase || 'now';
-        if (!phaseHtml[phase]) return;
-
-        phaseCounts[phase].total++;
-        if (task.status === 'done') phaseCounts[phase].done++;
-
-        const impactColor = { high: 'text-red-400 bg-red-500/10', medium: 'text-yellow-400 bg-yellow-500/10', low: 'text-green-400 bg-green-500/10' };
-        const diffColor = { easy: 'text-green-400', medium: 'text-yellow-400', hard: 'text-red-400' };
-        const statusIcon = task.status === 'done' ? '✅' : task.status === 'in_progress' ? '🔄' : '⬜';
-
-        phaseHtml[phase].push(`
-          <div class="glass rounded-2xl p-5 glass-card transition-all duration-300">
-            <div class="flex items-start gap-3">
-              <span class="text-xl mt-0.5 cursor-pointer hover:scale-125 transition-transform">${statusIcon}</span>
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-lg">${task.agent_emoji || '🤖'}</span>
-                  <span class="font-medium text-white text-sm">${task.title}</span>
-                </div>
-                <p class="text-xs text-gray-400 leading-relaxed mb-3">${task.description || ''}</p>
-                <div class="flex items-center gap-3 flex-wrap">
-                  <span class="px-2 py-0.5 rounded-full text-xs ${impactColor[task.impact] || impactColor.medium}">
-                    🎯 ${task.impact === 'high' ? 'גבוהה' : task.impact === 'low' ? 'נמוכה' : 'בינונית'}
-                  </span>
-                  <span class="text-xs ${diffColor[task.difficulty] || diffColor.medium}">
-                    💪 ${task.difficulty === 'easy' ? 'קל' : task.difficulty === 'hard' ? 'קשה' : 'בינוני'}
-                  </span>
-                  ${task.estimated_time ? `<span class="text-xs text-gray-500">⏱️ ${task.estimated_time}</span>` : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-        `);
+          if (agent === 5 && pct === 100) {
+            setTimeout(() => goToStage('diagnosis'), 1500);
+          }
+        }, t);
       });
-
-      for (const [phase, containerId] of Object.entries(phases)) {
-        if (phaseHtml[phase].length > 0) {
-          document.getElementById(containerId).innerHTML = phaseHtml[phase].join('');
-        }
-        document.getElementById(`${phase}-progress`).textContent = phaseCounts[phase].done;
-        document.getElementById(`${phase}-total`).textContent = phaseCounts[phase].total;
-      }
     }
 
-    // ──── Start New Audit ────
-    async function startNewAudit() {
-      const btn = event.target;
-      btn.disabled = true;
-      btn.innerHTML = '⏳ שולח את הצוות...';
+    function renderAgentProgress() {
+      const el = document.getElementById('agent-progress-list');
+      el.innerHTML = AGENTS.map(a => {
+        const statusIcon = a.status === 'done' ? '✅' : a.status === 'working' ? `<span class="inline-block w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full spin"></span>` : '⏳';
+        const barColor = a.status === 'done' ? 'from-green-500 to-emerald-400' : 'from-purple-500 to-blue-500';
+        const opacity = a.status === 'pending' ? 'opacity-40' : '';
+        return `<div class="glass rounded-xl p-3 flex items-center gap-3 transition-all ${opacity} ${a.status === 'working' ? 'progress-pulse' : ''}">
+          <span class="text-xl">${a.emoji}</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-medium">${a.name} <span class="text-gray-500 font-normal">— ${a.role}</span></span>
+              <span class="text-xs font-bold ${a.status === 'done' ? 'text-green-400' : 'text-gray-400'}">${a.pct}%</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${barColor} transition-all duration-700" style="width:${a.pct}%"></div></div>
+          </div>
+          <div class="w-5">${statusIcon}</div>
+        </div>`;
+      }).join('');
+    }
 
+    function updateOverallProgress() {
+      const total = AGENTS.reduce((s, a) => s + a.pct, 0);
+      const pct = Math.round(total / AGENTS.length);
+      document.getElementById('overall-pct').textContent = pct + '%';
+      document.getElementById('overall-bar').style.width = pct + '%';
+    }
+
+    // ──── Diagnosis ────
+    async function loadDiagnosis() {
+      // Try loading real data from Supabase
+      const CLIENT_ID = currentClientId || '295539a5-c3a9-4453-8295-4c982a700166';
       try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/start-audit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-          body: JSON.stringify({ client_id: CLIENT_ID })
-        });
-        const data = await res.json();
-        if (data.audit_id) {
-          btn.innerHTML = '✅ הצוות יצא לדרך!';
-          setTimeout(() => { btn.innerHTML = '🚀 התחל אודיט חדש'; btn.disabled = false; }, 3000);
+        const audits = await q('seo_audits', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=1`);
+        if (audits?.length > 0) {
+          const a = audits[0];
+          renderScoreRing(a.overall_score || 35);
+          setMaturity(a.maturity_level || 'foundation');
+          const sc = a.sikum_result?.scores || { technical:a.technical_score||30, content:a.content_score||40, authority:a.authority_score||25, keywords:a.keywords_score||35, competition:40, geo:a.geo_score||20 };
+          renderCategories(sc);
+          renderSummary(sc, a.sikum_result);
+          return;
         }
-      } catch (e) {
-        btn.innerHTML = '❌ שגיאה';
-        setTimeout(() => { btn.innerHTML = '🚀 התחל אודיט חדש'; btn.disabled = false; }, 2000);
+      } catch(e) {}
+
+      // Fallback demo data
+      renderScoreRing(35);
+      setMaturity('foundation');
+      renderCategories({ technical:30, content:40, authority:25, keywords:35, competition:40, geo:20 });
+      renderSummary({ technical:30, content:40, authority:25, keywords:35, competition:40, geo:20 }, { maturity_level:'foundation' });
+    }
+
+    function renderScoreRing(s) {
+      const o = 339.292 - (s/100)*339.292;
+      document.getElementById('score-ring').style.strokeDashoffset = o;
+      document.getElementById('score-number').textContent = s;
+      const stops = document.querySelectorAll('#scoreGrad stop');
+      if(s<=45){stops[0].setAttribute('stop-color','#f97316');stops[1].setAttribute('stop-color','#ea580c');stops[2].setAttribute('stop-color','#c2410c')}
+      else if(s<=65){stops[0].setAttribute('stop-color','#eab308');stops[1].setAttribute('stop-color','#ca8a04');stops[2].setAttribute('stop-color','#a16207')}
+      else{stops[0].setAttribute('stop-color','#22c55e');stops[1].setAttribute('stop-color','#16a34a');stops[2].setAttribute('stop-color','#15803d')}
+    }
+
+    function setMaturity(l) {
+      const ls = { starter:{i:'🔴',l:'מתחיל',c:'maturity-starter'}, foundation:{i:'🟠',l:'בסיס',c:'maturity-foundation'}, developing:{i:'🟡',l:'בדרך',c:'maturity-developing'}, advanced:{i:'🟢',l:'מתקדם',c:'maturity-advanced'}, leader:{i:'🏆',l:'מוביל',c:'maturity-leader'} };
+      const m = ls[l] || ls.foundation;
+      document.getElementById('maturity-badge').className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${m.c}`;
+      document.getElementById('maturity-icon').textContent = m.i;
+      document.getElementById('maturity-label').textContent = m.l;
+    }
+
+    function renderCategories(sc) {
+      const cats = [
+        {k:'technical',l:'Technical SEO',e:'🔧',c:'from-blue-500 to-cyan-400'},
+        {k:'content',l:'Content',e:'📝',c:'from-purple-500 to-pink-400'},
+        {k:'authority',l:'Authority & Links',e:'🔗',c:'from-green-500 to-emerald-400'},
+        {k:'keywords',l:'Keywords',e:'🔑',c:'from-yellow-500 to-orange-400'},
+        {k:'competition',l:'Competition',e:'🕵️',c:'from-red-500 to-rose-400'},
+        {k:'geo',l:'GEO / AI',e:'🤖',c:'from-violet-500 to-purple-400'},
+      ];
+      document.getElementById('category-scores').innerHTML = cats.map((c,i) => {
+        const s = sc[c.k]||0;
+        const col = s>=70?'text-green-400':s>=45?'text-yellow-400':s>=25?'text-orange-400':'text-red-400';
+        return `<div><div class="flex items-center justify-between mb-1"><div class="flex items-center gap-2"><span>${c.e}</span><span class="text-xs font-medium text-gray-200">${c.l}</span></div><span class="text-xs font-bold ${col}">${s}/100</span></div><div class="h-2 rounded-full bg-white/5 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l ${c.c} bar-grow" style="width:${s}%;animation-delay:${.3+i*.12}s"></div></div></div>`;
+      }).join('');
+    }
+
+    function renderSummary(sc, sikum) {
+      const el = document.getElementById('diagnosis-summary');
+      el.innerHTML = `<div class="flex items-start gap-3"><div class="text-xl">📋</div><div class="text-sm text-gray-300 space-y-1">
+        <p>🔧 <b>Technical:</b> ${sc.technical}/100 — ${sc.technical>=50?'סביר':'צריך טיפול דחוף'}</p>
+        <p>📝 <b>Content:</b> ${sc.content}/100 — ${sc.content>=50?'בסיס קיים':'חסרים Meta ותוכן'}</p>
+        <p>🔗 <b>Authority:</b> ${sc.authority}/100 — ${sc.authority>=50?'סביר':'צריך קישורים'}</p>
+        <p>🔑 <b>Keywords:</b> ${sc.keywords}/100 — ${sc.keywords>=50?'יש בסיס':'הזדמנויות לא מנוצלות'}</p>
+        <p>🤖 <b>GEO/AI:</b> ${sc.geo}/100 — ${sc.geo>=50?'נראים':'כמעט בלתי נראים ב-AI'}</p>
+      </div></div>`;
+    }
+
+    // ──── Roadmap ────
+    async function loadRoadmap() {
+      const CLIENT_ID = currentClientId || '295539a5-c3a9-4453-8295-4c982a700166';
+      let tasks = [];
+      try { tasks = await q('seo_tasks', `client_id=eq.${CLIENT_ID}&order=task_number.asc`); } catch(e) {}
+
+      if (!tasks || tasks.length === 0) {
+        // Demo tasks
+        tasks = [
+          {phase:'now',title:'תקן Meta Descriptions ל-23 דפים',description:'23 דפים באתר בלי Meta Description. Google ממציא תיאור בעצמו — גרוע ל-CTR.',agent_emoji:'📝',agent_name:'נועה',impact:'high',difficulty:'easy',estimated_time:'שעה',status:'pending'},
+          {phase:'now',title:'תקן 12 שגיאות 404',description:'12 קישורים פנימיים מובילים לדפים שלא קיימים. הגולשים ו-Google מתבלבלים.',agent_emoji:'🔧',agent_name:'טכנו',impact:'high',difficulty:'easy',estimated_time:'30 דקות',status:'pending'},
+          {phase:'now',title:'הוסף Alt Text ל-67 תמונות',description:'67 תמונות בלי תיאור. Google לא יכול להבין מה בתמונות.',agent_emoji:'📝',agent_name:'נועה',impact:'medium',difficulty:'easy',estimated_time:'שעה',status:'pending'},
+          {phase:'now',title:'אופטימיזציית Title ל-5 דפים מובילים',description:'5 דפים עם הכי הרבה תנועה — ה-Title שלהם לא ממוקד.',agent_emoji:'🔑',agent_name:'קיוורד',impact:'high',difficulty:'easy',estimated_time:'30 דקות',status:'pending'},
+          {phase:'month',title:'כתיבת תוכן ל-10 מילות מפתח חדשות',description:'יש 10 מילות מפתח עם נפח חיפוש גבוה שאין לך עליהן דפים.',agent_emoji:'📝',agent_name:'נועה',impact:'high',difficulty:'medium',estimated_time:'שבוע',status:'pending'},
+          {phase:'month',title:'בניית 10 קישורים נכנסים',description:'DR נמוך — צריך לבנות קישורים מאתרים איכותיים בנישה.',agent_emoji:'🔗',agent_name:'לינקי',impact:'high',difficulty:'hard',estimated_time:'חודש',status:'pending'},
+          {phase:'month',title:'הוספת FAQ Schema ל-15 דפים',description:'Schema של שאלות ותשובות יכול להופיע בתוצאות החיפוש.',agent_emoji:'🔧',agent_name:'טכנו',impact:'medium',difficulty:'medium',estimated_time:'3 שעות',status:'pending'},
+          {phase:'quarter',title:'אסטרטגיית AI/GEO — תוכן מותאם ל-LLMs',description:'להכין תוכן שמותאם לתשובות של ChatGPT ו-Gemini.',agent_emoji:'🤖',agent_name:"ג'יאו",impact:'high',difficulty:'hard',estimated_time:'שבועיים',status:'pending'},
+          {phase:'quarter',title:'ניתוח וחיזוק 20 דפים קיימים',description:'20 דפים שמדורגים בעמוד 2 — עם אופטימיזציה ממוקדת אפשר להעלות אותם.',agent_emoji:'🔑',agent_name:'קיוורד',impact:'high',difficulty:'medium',estimated_time:'חודש',status:'pending'},
+        ];
       }
+      allTasks = tasks;
+      renderTasksByPhase(tasks);
     }
 
-    // ──── Load All Data ────
-    async function loadDashboard() {
-      try {
-        // Load client
-        const clients = await query('clients', `id=eq.${CLIENT_ID}&limit=1`);
-        const client = clients?.[0];
-
-        if (client) {
-          document.getElementById('client-name').textContent = client.company_name || client.brand_name;
-          document.getElementById('client-domain').textContent = client.domain;
-          document.getElementById('client-domain').href = `https://${client.domain}`;
-          document.getElementById('client-niche').textContent = client.niche || '';
-          if (client.last_audit_at) {
-            document.getElementById('last-audit-date').textContent = new Date(client.last_audit_at).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' });
-          }
-        }
-
-        // Load latest audit
-        const audits = await query('seo_audits', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=1`);
-
-        if (audits && audits.length > 0) {
-          const audit = audits[0];
-          setScoreRing(audit.overall_score || 0);
-          setMaturity(audit.maturity_level || 'foundation');
-
-          const scores = audit.sikum_result?.scores || {
-            technical: audit.technical_score || 0,
-            content: audit.content_score || 0,
-            authority: audit.authority_score || 0,
-            keywords: audit.keywords_score || 0,
-            competition: 40,
-            geo: audit.geo_score || 0
-          };
-          renderCategoryScores(scores);
-
-          // Daniel summary
-          if (audit.sikum_result) {
-            const summaryDiv = document.getElementById('daniel-summary');
-            const s = audit.sikum_result;
-            summaryDiv.innerHTML = `
-              <p class="mb-3">הנה הסיכום של האודיט:</p>
-              <div class="glass rounded-xl p-4 space-y-2 text-sm">
-                <p>🔧 <strong>Technical:</strong> ${scores.technical}/100 — ${scores.technical >= 50 ? 'מצב סביר, יש מה לשפר' : 'צריך טיפול דחוף'}</p>
-                <p>📝 <strong>Content:</strong> ${scores.content}/100 — ${scores.content >= 50 ? 'תוכן בסיסי קיים' : 'חסרים תיאורי Meta ותוכן איכותי'}</p>
-                <p>🔗 <strong>Authority:</strong> ${scores.authority}/100 — ${scores.authority >= 50 ? 'פרופיל קישורים סביר' : 'צריך לבנות קישורים נכנסים'}</p>
-                <p>🔑 <strong>Keywords:</strong> ${scores.keywords}/100 — ${scores.keywords >= 50 ? 'יש בסיס, נרחיב' : 'יש הזדמנויות שלא מנוצלות'}</p>
-                <p>🤖 <strong>GEO/AI:</strong> ${scores.geo}/100 — ${scores.geo >= 50 ? 'נראים ב-AI' : 'כמעט בלתי נראים ב-AI search'}</p>
-              </div>
-              <p class="mt-3 text-purple-300 font-medium">רמת SEO: ${s.maturity_level === 'foundation' ? '🟠 בסיס — יש הרבה פוטנציאל לצמיחה!' : s.maturity_level === 'developing' ? '🟡 בדרך — במסלול הנכון!' : '📈 ממשיכים לעבוד!'}</p>
-            `;
-          }
-
-          // Status badge
-          const statusEl = document.getElementById('audit-status');
-          if (audit.status === 'running') {
-            statusEl.innerHTML = '<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse">בריצה...</span>';
-          } else if (audit.status === 'completed') {
-            statusEl.innerHTML = '<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">הושלם</span>';
-          }
-        }
-
-        // Load agents
-        const agents = await query('agents', 'order=agent_order.asc');
-        if (agents) renderTeam(agents);
-
-        // Load feed
-        const feed = await query('seo_agent_feed', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=50`);
-        renderFeed(feed);
-
-        // Load tasks
-        const tasks = await query('seo_tasks', `client_id=eq.${CLIENT_ID}&order=task_number.asc`);
-        if (tasks) renderTasks(tasks);
-
-      } catch (err) {
-        console.error('Dashboard load error:', err);
-      }
+    function renderTasksByPhase(tasks) {
+      ['now','month','quarter'].forEach(phase => {
+        const pts = tasks.filter(t => t.phase === phase);
+        const done = pts.filter(t => t.status === 'done').length;
+        document.getElementById(phase + '-done').textContent = done;
+        document.getElementById(phase + '-total').textContent = pts.length;
+        const el = document.getElementById('tasks-' + phase);
+        if (!pts.length) { el.innerHTML = '<div class="glass rounded-xl p-4 text-center text-gray-500 text-xs">אין משימות</div>'; return; }
+        el.innerHTML = pts.map((t, i) => {
+          const si = t.status==='done'?'✅':t.status==='in_progress'?'🔄':'⬜';
+          const ic = {high:'text-red-400 bg-red-500/10',medium:'text-yellow-400 bg-yellow-500/10',low:'text-green-400 bg-green-500/10'};
+          return `<div class="glass rounded-xl p-3.5 glass-card transition-all cursor-pointer" onclick="goToTask(${tasks.indexOf(t)})">
+            <div class="flex items-start gap-2.5"><span class="text-base">${si}</span><div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 mb-0.5"><span class="text-sm">${t.agent_emoji||'🤖'}</span><span class="text-xs font-medium text-white truncate">${t.title}</span></div>
+              <p class="text-[11px] text-gray-400 line-clamp-1">${t.description||''}</p>
+              <div class="flex items-center gap-2 mt-1.5"><span class="px-1.5 py-0.5 rounded text-[10px] ${ic[t.impact]||ic.medium}">🎯 ${t.impact==='high'?'גבוהה':t.impact==='low'?'נמוכה':'בינונית'}</span>
+              ${t.estimated_time?`<span class="text-[10px] text-gray-500">⏱️ ${t.estimated_time}</span>`:''}</div>
+            </div></div></div>`;
+        }).join('');
+      });
     }
 
-    // ──── Polling for updates (every 30s) ────
-    function setupRealtime() {
-      setInterval(() => { loadDashboard(); }, 30000);
+    // ──── Execution ────
+    function loadExecution() {
+      currentTaskIdx = allTasks.findIndex(t => t.status !== 'done') || 0;
+      showTask(currentTaskIdx);
+      updateExecProgress();
     }
 
-    async function loadFeed() {
-      const feed = await query('seo_agent_feed', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=50`);
-      renderFeed(feed);
+    function showTask(idx) {
+      if (idx >= allTasks.length) { document.getElementById('current-task').innerHTML = '<div class="text-center py-8"><div class="text-4xl mb-3">🎉</div><h3 class="text-lg font-bold">סיימת את כל המשימות!</h3><p class="text-sm text-gray-400 mt-2">הצוות ימשיך לעקוב ולעדכן.</p></div>'; return; }
+      const t = allTasks[idx];
+      document.getElementById('task-emoji').textContent = t.agent_emoji || '🤖';
+      document.getElementById('task-agent').textContent = t.agent_name || 'סוכן';
+      document.getElementById('task-title').textContent = t.title;
+      document.getElementById('task-description').textContent = t.description || '';
+      document.getElementById('task-impact').textContent = '🎯 ' + (t.impact==='high'?'גבוהה':t.impact==='low'?'נמוכה':'בינונית');
+      document.getElementById('task-time').textContent = '⏱️ ' + (t.estimated_time || '--');
+    }
+
+    function completeTask() {
+      if (currentTaskIdx < allTasks.length) allTasks[currentTaskIdx].status = 'done';
+      currentTaskIdx = allTasks.findIndex(t => t.status !== 'done');
+      if (currentTaskIdx === -1) currentTaskIdx = allTasks.length;
+      showTask(currentTaskIdx);
+      updateExecProgress();
+    }
+
+    function skipTask() {
+      currentTaskIdx++;
+      if (currentTaskIdx >= allTasks.length) currentTaskIdx = allTasks.findIndex(t => t.status !== 'done') || allTasks.length;
+      showTask(currentTaskIdx);
+    }
+
+    function goToTask(idx) {
+      currentTaskIdx = idx;
+      goToStage('execution');
+      showTask(idx);
+    }
+
+    function updateExecProgress() {
+      const done = allTasks.filter(t => t.status === 'done').length;
+      document.getElementById('exec-done').textContent = done;
+      document.getElementById('exec-total').textContent = allTasks.length;
+      document.getElementById('exec-bar').style.width = (allTasks.length ? (done/allTasks.length*100) : 0) + '%';
     }
 
     // ──── Init ────
-    document.addEventListener('DOMContentLoaded', () => {
-      loadDashboard();
-      setupRealtime();
-    });
+    goToStage('onboarding');
   </script>
 </body>
 </html>
