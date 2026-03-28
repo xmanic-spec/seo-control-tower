@@ -10,18 +10,21 @@
     tailwind.config = {
       theme: { extend: {
         fontFamily: { heebo: ['Heebo', 'sans-serif'] },
-        colors: { dark: { 900:'#0a0a1a',800:'#0f0f23',700:'#1a1a2e',600:'#252547' }, accent: { purple:'#8b5cf6',blue:'#3b82f6',pink:'#ec4899',cyan:'#06b6d4' } }
+        colors: {
+          brand: { 500:'#557d59', 600:'#4a6e4e', 700:'#384238', 800:'#2d352d', 900:'#1e251e' },
+          surface: { 50:'#fafbfa', 100:'#f0f4f0', 200:'#e2e8e2', 300:'#c8d4c8', 400:'#9bb09b' }
+        }
       }}
     }
   </script>
   <style>
     *{font-family:'Heebo',sans-serif}
-    body{background:linear-gradient(135deg,#0a0a1a 0%,#0f0f23 30%,#1a1a2e 60%,#0f0f23 100%)}
-    .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
-    .glass-strong{background:rgba(255,255,255,0.06);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.1)}
-    .glass-card:hover{background:rgba(255,255,255,0.08);border-color:rgba(139,92,246,0.3);transform:translateY(-2px)}
-    .glow-score{box-shadow:0 0 60px rgba(139,92,246,0.2),0 0 120px rgba(59,130,246,0.1)}
-    .gradient-text{background:linear-gradient(135deg,#8b5cf6,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    body{background:#f5f7f5;color:#384238}
+    .glass{background:white;border:1px solid #e2e8e2;box-shadow:0 1px 3px rgba(56,66,56,0.06)}
+    .glass-strong{background:white;border:1px solid #c8d4c8;box-shadow:0 4px 16px rgba(56,66,56,0.08)}
+    .glass-card:hover{border-color:#557d59;transform:translateY(-2px);box-shadow:0 8px 24px rgba(85,125,89,0.12)}
+    .glow-score{box-shadow:0 8px 40px rgba(85,125,89,0.15)}
+    .gradient-text{background:linear-gradient(135deg,#557d59,#384238);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     @keyframes scoreReveal{from{stroke-dashoffset:339.292}}.score-ring{animation:scoreReveal 2s ease-out forwards}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}.pulse-dot{animation:pulse 2s infinite}
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.fade-up{animation:fadeUp .6s ease-out forwards;opacity:0}
@@ -29,23 +32,24 @@
     @keyframes barGrow{from{width:0}}.bar-grow{animation:barGrow 1.5s ease-out forwards}
     @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin 1s linear infinite}
     @keyframes progressPulse{0%,100%{opacity:1}50%{opacity:.6}}.progress-pulse{animation:progressPulse 1.5s ease-in-out infinite}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:rgba(255,255,255,0.02)}::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.3);border-radius:3px}
-    .particle{position:fixed;border-radius:50%;pointer-events:none;opacity:0.03;background:radial-gradient(circle,#8b5cf6,transparent)}
-    .tab-active{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.1));border-color:rgba(139,92,246,0.4)}
-    .maturity-starter{background:linear-gradient(135deg,#ef444440,#dc262640);color:#fca5a5}
-    .maturity-foundation{background:linear-gradient(135deg,#f9731640,#ea580c40);color:#fdba74}
-    .maturity-developing{background:linear-gradient(135deg,#eab30840,#ca8a0440);color:#fde047}
-    .maturity-advanced{background:linear-gradient(135deg,#22c55e40,#16a34a40);color:#86efac}
-    .maturity-leader{background:linear-gradient(135deg,#8b5cf640,#7c3aed40);color:#c4b5fd}
-    .step-done{border-color:rgba(34,197,94,0.5);background:rgba(34,197,94,0.05)}
-    .step-active{border-color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.08);box-shadow:0 0 30px rgba(139,92,246,0.1)}
-    .step-pending{border-color:rgba(255,255,255,0.05);opacity:.5}
-    input,select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;outline:none;transition:all .3s}
-    input:focus,select:focus{border-color:rgba(139,92,246,0.5);box-shadow:0 0 20px rgba(139,92,246,0.1)}
-    select option{background:#1a1a2e;color:white}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0f4f0}::-webkit-scrollbar-thumb{background:#9bb09b;border-radius:3px}
+    .particle{position:fixed;border-radius:50%;pointer-events:none;opacity:0.04;background:radial-gradient(circle,#557d59,transparent)}
+    .tab-active{background:linear-gradient(135deg,rgba(85,125,89,0.08),rgba(56,66,56,0.04));border-color:#557d59}
+    .maturity-starter{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    .maturity-foundation{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa}
+    .maturity-developing{background:#fefce8;color:#ca8a04;border:1px solid #fef08a}
+    .maturity-advanced{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+    .maturity-leader{background:#f0fdf4;color:#557d59;border:1px solid #557d59}
+    .step-done{border-color:#557d59;background:#f0fdf4;color:#384238}
+    .step-active{border-color:#557d59;background:white;box-shadow:0 0 0 3px rgba(85,125,89,0.15);color:#384238;font-weight:600}
+    .step-pending{border-color:#e2e8e2;color:#9bb09b}
+    input,select{background:white;border:1px solid #c8d4c8;color:#384238;outline:none;transition:all .3s;border-radius:0.75rem}
+    input:focus,select:focus{border-color:#557d59;box-shadow:0 0 0 3px rgba(85,125,89,0.12)}
+    input::placeholder{color:#9bb09b}
+    select option{background:white;color:#384238}
   </style>
 </head>
-<body class="min-h-screen text-white overflow-x-hidden">
+<body class="min-h-screen overflow-x-hidden">
   <div class="particle" style="width:300px;height:300px;top:10%;right:10%"></div>
   <div class="particle" style="width:400px;height:400px;bottom:10%;left:5%"></div>
 
@@ -55,12 +59,12 @@
   <header class="glass sticky top-0 z-50 px-6 py-3">
     <div class="max-w-5xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-sm font-bold">P</div>
-        <div><h1 class="text-base font-bold gradient-text">SEO Control Tower</h1><p class="text-[10px] text-gray-500">Pink Media | AI-Powered SEO</p></div>
+        <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-sm font-bold text-white">P</div>
+        <div><h1 class="text-base font-bold gradient-text">SEO Control Tower</h1><p class="text-[10px] text-gray-400">Pink Media | AI-Powered SEO</p></div>
       </div>
       <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full glass text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></span><span class="text-green-400 text-[11px]">Live</span></div>
-        <div id="header-client" class="hidden text-xs text-gray-400"><span id="header-domain"></span></div>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-green-200 bg-green-50 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500 pulse-dot"></span><span class="text-green-700 text-[11px]">Live</span></div>
+        <div id="header-client" class="hidden text-xs text-gray-500"><span id="header-domain"></span></div>
       </div>
     </div>
   </header>
@@ -105,10 +109,10 @@
       <div class="glass-strong rounded-3xl p-8 max-w-2xl mx-auto fade-up">
         <!-- Daniel greeting -->
         <div class="flex items-start gap-4 mb-8">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-3xl border border-purple-500/20 flex-shrink-0">👨‍💼</div>
+          <div class="w-14 h-14 rounded-2xl bg-brand-500/10 flex items-center justify-center text-3xl border border-brand-500/20 flex-shrink-0">👨‍💼</div>
           <div>
-            <div class="flex items-center gap-2 mb-1"><span class="font-bold text-purple-300 text-lg">דניאל</span><span class="text-xs text-gray-500">— מנהל צוות ה-SEO שלך</span></div>
-            <p class="text-gray-300 text-sm leading-relaxed">היי! אני דניאל, מנהל צוות ה-SEO שלך. 👋<br>בוא נתחיל — ספר לי על האתר ואני שולח את הצוות לעבודה.</p>
+            <div class="flex items-center gap-2 mb-1"><span class="font-bold text-brand-700 text-lg">דניאל</span><span class="text-xs text-gray-400">— מנהל צוות ה-SEO שלך</span></div>
+            <p class="text-gray-600 text-sm leading-relaxed">היי! אני דניאל, מנהל צוות ה-SEO שלך. 👋<br>בוא נתחיל — ספר לי על האתר ואני שולח את הצוות לעבודה.</p>
           </div>
         </div>
 
@@ -163,7 +167,7 @@
 
           <!-- Optional section -->
           <details class="mt-2">
-            <summary class="text-xs text-purple-400 cursor-pointer hover:text-purple-300 transition">🔵 אופציונלי — מתחרים, מילות מפתח, GSC</summary>
+            <summary class="text-xs text-brand-500 cursor-pointer hover:text-brand-700 transition">🔵 אופציונלי — מתחרים, מילות מפתח, GSC</summary>
             <div class="space-y-4 mt-4">
               <div>
                 <label class="text-xs text-gray-400 mb-1.5 block">מתחרים (מופרדים בפסיק)</label>
@@ -179,7 +183,7 @@
               </div>
               <div>
                 <label class="text-xs text-gray-400 mb-1.5 block">📄 העלאת סריקת Screaming Frog (CSV)</label>
-                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-white/10 cursor-pointer hover:border-purple-500/30 transition text-sm text-gray-400">
+                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-white/10 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400">
                   <span>📁</span> <span id="sf-label">לחץ לבחירת קובץ</span>
                   <input id="input-sf" type="file" accept=".csv" class="hidden" onchange="document.getElementById('sf-label').textContent=this.files[0]?.name||'לחץ לבחירת קובץ'">
                 </label>
@@ -187,7 +191,7 @@
             </div>
           </details>
 
-          <button onclick="startAudit()" class="w-full mt-4 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-base font-bold hover:from-purple-500 hover:to-blue-500 transition-all hover:shadow-lg hover:shadow-purple-500/20 flex items-center justify-center gap-2">
+          <button onclick="startAudit()" class="w-full mt-4 py-4 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-base font-bold hover:bg-brand-600 transition-all hover:shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2">
             🚀 שלח את הצוות לעבודה
           </button>
         </div>
@@ -203,8 +207,8 @@
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
           <div class="text-2xl">👨‍💼</div>
           <div>
-            <span class="font-bold text-purple-300 text-sm">דניאל:</span>
-            <p class="text-gray-300 text-sm mt-1" id="discovery-message">מעולה! שלחתי את הצוות לסרוק את האתר שלך. זה ייקח כמה דקות. תראה אותם עובדים:</p>
+            <span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
+            <p class="text-gray-600 text-sm mt-1" id="discovery-message">מעולה! שלחתי את הצוות לסרוק את האתר שלך. זה ייקח כמה דקות. תראה אותם עובדים:</p>
           </div>
         </div>
 
@@ -215,7 +219,7 @@
             <span id="overall-pct" class="text-sm font-bold gradient-text">0%</span>
           </div>
           <div class="h-3 rounded-full bg-white/5 overflow-hidden">
-            <div id="overall-bar" class="h-full rounded-full bg-gradient-to-l from-purple-500 to-blue-500 transition-all duration-1000" style="width:0%"></div>
+            <div id="overall-bar" class="h-full rounded-full bg-gradient-to-l from-brand-500 to-brand-700 transition-all duration-1000" style="width:0%"></div>
           </div>
         </div>
 
@@ -245,8 +249,8 @@
         <!-- Daniel summary -->
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
           <div class="text-2xl">👨‍💼</div>
-          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
-            <p class="text-gray-300 text-sm mt-1" id="diagnosis-daniel-msg">סיימנו! הנה הסיכום:</p>
+          <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
+            <p class="text-gray-600 text-sm mt-1" id="diagnosis-daniel-msg">סיימנו! הנה הסיכום:</p>
           </div>
         </div>
 
@@ -258,7 +262,7 @@
               <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
                 <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
                 <circle id="score-ring" cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292" class="score-ring"/>
-                <defs><linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="50%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+                <defs><linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#557d59"/><stop offset="50%" stop-color="#4a6e4e"/><stop offset="100%" stop-color="#384238"/></linearGradient></defs>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center"><span id="score-number" class="text-4xl font-black gradient-text">--</span><span class="text-xs text-gray-400">/100</span></div>
             </div>
@@ -279,10 +283,10 @@
           <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">🔴</div><div id="stat-critical" class="text-xl font-bold text-red-400">0</div><div class="text-[10px] text-gray-500">בעיות קריטיות</div></div>
           <div class="glass rounded-xl p-4 text-center fade-up delay-4 glass-card transition-all"><div class="text-2xl mb-1">⚡</div><div id="stat-quickwins" class="text-xl font-bold text-yellow-400">0</div><div class="text-[10px] text-gray-500">ניצחונות מהירים</div></div>
           <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">📄</div><div id="stat-pages" class="text-xl font-bold text-blue-400">--</div><div class="text-[10px] text-gray-500">דפים נסרקו</div></div>
-          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">🤖</div><div id="stat-agents" class="text-xl font-bold text-purple-400">6</div><div class="text-[10px] text-gray-500">סוכנים עבדו</div></div>
+          <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">🤖</div><div id="stat-agents" class="text-xl font-bold text-brand-500">6</div><div class="text-[10px] text-gray-500">סוכנים עבדו</div></div>
         </div>
 
-        <button onclick="goToStage('roadmap')" class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-sm font-bold hover:from-purple-500 hover:to-blue-500 transition-all flex items-center justify-center gap-2 fade-up delay-5">
+        <button onclick="goToStage('roadmap')" class="w-full mt-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold hover:bg-brand-600 transition-all flex items-center justify-center gap-2 fade-up delay-5">
           📋 הראה לי את תוכנית העבודה →
         </button>
       </div>
@@ -295,8 +299,8 @@
       <div class="max-w-3xl mx-auto">
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
           <div class="text-2xl">👨‍💼</div>
-          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
-            <p class="text-gray-300 text-sm mt-1">הכנתי לך תוכנית עבודה מותאמת אישית. מחולקת ל-3 שלבים — נתחיל מהדברים עם ההשפעה הכי גדולה:</p>
+          <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
+            <p class="text-gray-600 text-sm mt-1">הכנתי לך תוכנית עבודה מותאמת אישית. מחולקת ל-3 שלבים — נתחיל מהדברים עם ההשפעה הכי גדולה:</p>
           </div>
         </div>
 
@@ -330,7 +334,7 @@
           <div id="tasks-quarter" class="space-y-2"></div>
         </div>
 
-        <button onclick="goToStage('execution')" class="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-sm font-bold transition-all flex items-center justify-center gap-2">
+        <button onclick="goToStage('execution')" class="w-full mt-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold transition-all flex items-center justify-center gap-2">
           ✅ בוא נתחיל — הראה לי את המשימה הראשונה →
         </button>
       </div>
@@ -344,8 +348,8 @@
         <!-- Current task focus -->
         <div class="glass rounded-2xl p-5 mb-4 fade-up flex items-start gap-3">
           <div class="text-2xl">👨‍💼</div>
-          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
-            <p class="text-gray-300 text-sm mt-1">הנה המשימה הבאה שלך. הסוכן הרלוונטי מסביר בדיוק מה לעשות:</p>
+          <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
+            <p class="text-gray-600 text-sm mt-1">הנה המשימה הבאה שלך. הסוכן הרלוונטי מסביר בדיוק מה לעשות:</p>
           </div>
         </div>
 
@@ -354,7 +358,7 @@
           <div class="flex items-center gap-3 mb-4">
             <div id="task-emoji" class="text-3xl">🔧</div>
             <div>
-              <div class="flex items-center gap-2"><span id="task-agent" class="font-bold text-purple-300">טכנו</span><span class="text-xs text-gray-500">מסביר:</span></div>
+              <div class="flex items-center gap-2"><span id="task-agent" class="font-bold text-brand-700">טכנו</span><span class="text-xs text-gray-500">מסביר:</span></div>
               <h3 id="task-title" class="text-lg font-bold mt-1">טוען...</h3>
             </div>
           </div>
@@ -365,7 +369,7 @@
             <span id="task-time" class="text-xs text-gray-500">⏱️ --</span>
           </div>
           <div class="flex gap-3">
-            <button onclick="completeTask()" class="flex-1 py-3 rounded-xl bg-green-600/20 text-green-400 border border-green-500/20 text-sm font-medium hover:bg-green-600/30 transition-all">✅ עשיתי</button>
+            <button onclick="completeTask()" class="flex-1 py-3 rounded-xl bg-brand-500/10 text-brand-700 border border-brand-500/30 text-sm font-medium hover:bg-brand-500/20 transition-all">✅ עשיתי</button>
             <button onclick="skipTask()" class="px-6 py-3 rounded-xl glass text-sm text-gray-400 hover:text-white transition-all">⏭️ דלג</button>
           </div>
         </div>
@@ -377,7 +381,7 @@
             <span><span id="exec-done">0</span>/<span id="exec-total">0</span> משימות</span>
           </div>
           <div class="h-2 rounded-full bg-white/5 overflow-hidden">
-            <div id="exec-bar" class="h-full rounded-full bg-gradient-to-l from-green-500 to-emerald-400 transition-all duration-500" style="width:0%"></div>
+            <div id="exec-bar" class="h-full rounded-full bg-gradient-to-l from-brand-500 to-brand-600 transition-all duration-500" style="width:0%"></div>
           </div>
         </div>
       </div>
@@ -390,8 +394,8 @@
       <div class="max-w-3xl mx-auto">
         <div class="glass rounded-2xl p-5 mb-6 fade-up flex items-start gap-3">
           <div class="text-2xl">👨‍💼</div>
-          <div><span class="font-bold text-purple-300 text-sm">דניאל:</span>
-            <p class="text-gray-300 text-sm mt-1">הצוות שומר לך על האתר 24/7. הנה הסטטוס:</p>
+          <div><span class="font-bold text-brand-700 text-sm font-bold">דניאל:</span>
+            <p class="text-gray-600 text-sm mt-1">הצוות שומר לך על האתר 24/7. הנה הסטטוס:</p>
           </div>
         </div>
         <div class="glass-strong rounded-2xl p-6 text-center fade-up delay-1">
@@ -409,7 +413,7 @@
 
   </main>
 
-  <footer class="text-center py-6 text-[10px] text-gray-600">SEO Control Tower v2.0 — Built with AI by <span class="gradient-text font-medium">Pink Media</span></footer>
+  <footer class="text-center py-6 text-[10px] text-gray-400">SEO Control Tower v2.0 — Built with AI by <span class="gradient-text font-medium">Pink Media</span></footer>
 
   <!-- ═══════════════════════════════════════ -->
   <!-- JAVASCRIPT -->
@@ -515,7 +519,7 @@
           renderAgentProgress();
           updateOverallProgress();
 
-          feedEl.innerHTML = `<div class="text-gray-300 text-xs py-1 border-r-2 border-purple-500/30 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML;
+          feedEl.innerHTML = `<div class="text-gray-300 text-xs py-1 border-r-2 border-brand-500/40 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML;
 
           if (agent === 5 && pct === 100) {
             setTimeout(() => goToStage('diagnosis'), 1500);
@@ -527,8 +531,8 @@
     function renderAgentProgress() {
       const el = document.getElementById('agent-progress-list');
       el.innerHTML = AGENTS.map(a => {
-        const statusIcon = a.status === 'done' ? '✅' : a.status === 'working' ? `<span class="inline-block w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full spin"></span>` : '⏳';
-        const barColor = a.status === 'done' ? 'from-green-500 to-emerald-400' : 'from-purple-500 to-blue-500';
+        const statusIcon = a.status === 'done' ? '✅' : a.status === 'working' ? `<span class="inline-block w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full spin"></span>` : '⏳';
+        const barColor = a.status === 'done' ? 'from-green-500 to-emerald-400' : 'from-brand-500 to-brand-700';
         const opacity = a.status === 'pending' ? 'opacity-40' : '';
         return `<div class="glass rounded-xl p-3 flex items-center gap-3 transition-all ${opacity} ${a.status === 'working' ? 'progress-pulse' : ''}">
           <span class="text-xl">${a.emoji}</span>
@@ -730,7 +734,7 @@
       document.getElementById('task-title').textContent = t.title;
       // Show description + action items
       const actions = t.action_items || [];
-      const actionsHtml = actions.length ? '<div class="mt-3 space-y-1.5">' + actions.map(a => `<div class="flex items-start gap-2 text-xs"><span class="text-purple-400 mt-0.5">▸</span><span>${a}</span></div>`).join('') + '</div>' : '';
+      const actionsHtml = actions.length ? '<div class="mt-3 space-y-1.5">' + actions.map(a => `<div class="flex items-start gap-2 text-xs"><span class="text-brand-500 mt-0.5">▸</span><span>${a}</span></div>`).join('') + '</div>' : '';
       document.getElementById('task-description').innerHTML = `<p class="mb-2">${t.description || ''}</p>${t.explanation ? '<p class="text-xs text-gray-500 italic mb-2">📊 ' + t.explanation + '</p>' : ''}${actionsHtml}`;
       document.getElementById('task-impact').textContent = '🎯 ' + (t.impact==='high'?'גבוהה':t.impact==='low'?'נמוכה':'בינונית');
       document.getElementById('task-time').textContent = '⏱️ ' + (t.estimated_time || '--');
