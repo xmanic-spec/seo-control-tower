@@ -588,7 +588,7 @@
       const CLIENT_ID = currentClientId || '295539a5-c3a9-4453-8295-4c982a700166';
       try {
         const audits = await q('seo_audits', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=1`);
-        if (audits?.length > 0) {
+        if (Array.isArray(audits) && audits.length > 0) {
           const a = audits[0];
           currentAuditId = a.id;
           renderScoreRing(a.overall_score || 35);
@@ -705,9 +705,9 @@
     async function loadRoadmap() {
       const CLIENT_ID = currentClientId || '295539a5-c3a9-4453-8295-4c982a700166';
       let tasks = [];
-      try { tasks = await q('seo_tasks', `client_id=eq.${CLIENT_ID}&order=task_number.asc`); } catch(e) {}
+      try { const res = await q('seo_tasks', `client_id=eq.${CLIENT_ID}&order=task_number.asc`); if (Array.isArray(res)) tasks = res; } catch(e) {}
 
-      if (!tasks || tasks.length === 0) {
+      if (tasks.length === 0) {
         // Demo tasks
         tasks = [
           {phase:'now',title:'תקן Meta Descriptions ל-23 דפים',description:'23 דפים באתר בלי Meta Description. Google ממציא תיאור בעצמו — גרוע ל-CTR.',agent_emoji:'📝',agent_name:'נועה',impact:'high',difficulty:'easy',estimated_time:'שעה',status:'pending'},
@@ -829,9 +829,9 @@
     async function loadClients() {
       const el = document.getElementById('clients-list');
       let clients = [];
-      try { clients = await q('seo_clients', 'order=created_at.desc'); } catch(e) {}
+      try { const res = await q('seo_clients', 'order=created_at.desc'); if (Array.isArray(res)) clients = res; } catch(e) {}
 
-      if (!clients || clients.length === 0) {
+      if (clients.length === 0) {
         // Demo clients
         clients = [
           { id: '1', client_name: 'Next Place', domain: 'nextplace.co.il', niche: 'נדל"ן', status: 'active', last_audit_score: 62, last_audit_date: '2026-03-28' },
