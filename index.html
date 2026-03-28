@@ -59,10 +59,15 @@
   <header class="glass sticky top-0 z-50 px-6 py-3">
     <div class="max-w-5xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-sm font-bold text-white">P</div>
-        <div><h1 class="text-base font-bold gradient-text">SEO Control Tower</h1><p class="text-[10px] text-gray-400">Pink Media | AI-Powered SEO</p></div>
+        <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-sm font-bold text-white cursor-pointer" onclick="showScreen('audit')">P</div>
+        <div class="cursor-pointer" onclick="showScreen('audit')"><h1 class="text-base font-bold gradient-text">SEO Control Tower</h1><p class="text-[10px] text-gray-400">Pink Media | AI-Powered SEO</p></div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-4">
+        <nav class="flex items-center gap-1">
+          <button onclick="showScreen('clients')" id="nav-clients" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:bg-brand-500/10">👥 לקוחות</button>
+          <button onclick="showScreen('team')" id="nav-team" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:bg-brand-500/10">🧑‍💼 צוות</button>
+          <button onclick="showScreen('audit')" id="nav-audit" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-brand-500/10 text-brand-700">🔍 אודיט</button>
+        </nav>
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-green-200 bg-green-50 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500 pulse-dot"></span><span class="text-green-700 text-[11px]">Live</span></div>
         <div id="header-client" class="hidden text-xs text-gray-500"><span id="header-domain"></span></div>
       </div>
@@ -412,6 +417,27 @@
     </div>
 
   </main>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SCREEN: CLIENTS -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="screen-clients" class="hidden max-w-5xl mx-auto px-6 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <div><h2 class="text-xl font-bold">👥 הלקוחות שלי</h2><p class="text-xs text-gray-400 mt-1">כל הלקוחות עם סטטוס האודיט האחרון</p></div>
+      <button onclick="showScreen('audit');goToStage('onboarding')" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-all flex items-center gap-2">➕ לקוח חדש</button>
+    </div>
+    <div id="clients-list" class="space-y-3">
+      <div class="text-center py-12 text-gray-400 text-sm">טוען לקוחות...</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SCREEN: TEAM -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="screen-team" class="hidden max-w-5xl mx-auto px-6 py-8">
+    <div class="mb-6"><h2 class="text-xl font-bold">🧑‍💼 הצוות שלי</h2><p class="text-xs text-gray-400 mt-1">הסוכנים האוטומטיים שעובדים בשבילך 24/7</p></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="team-grid"></div>
+  </div>
 
   <footer class="text-center py-6 text-[10px] text-gray-400">SEO Control Tower v2.0 — Built with AI by <span class="gradient-text font-medium">Pink Media</span></footer>
 
@@ -768,6 +794,122 @@
       document.getElementById('exec-done').textContent = done;
       document.getElementById('exec-total').textContent = allTasks.length;
       document.getElementById('exec-bar').style.width = (allTasks.length ? (done/allTasks.length*100) : 0) + '%';
+    }
+
+    // ──── Screen Navigation ────
+    function showScreen(screen) {
+      // Hide all screens
+      document.querySelectorAll('#screen-clients, #screen-team').forEach(s => s.classList.add('hidden'));
+      const mainEl = document.querySelector('main');
+      const stepsBar = document.getElementById('steps-bar');
+
+      // Update nav buttons
+      document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-brand-500/10','text-brand-700'); });
+      const activeBtn = document.getElementById('nav-' + screen);
+      if (activeBtn) { activeBtn.classList.add('bg-brand-500/10','text-brand-700'); }
+
+      if (screen === 'clients') {
+        mainEl.classList.add('hidden');
+        stepsBar.classList.add('hidden');
+        document.getElementById('screen-clients').classList.remove('hidden');
+        loadClients();
+      } else if (screen === 'team') {
+        mainEl.classList.add('hidden');
+        stepsBar.classList.add('hidden');
+        document.getElementById('screen-team').classList.remove('hidden');
+        renderTeam();
+      } else {
+        mainEl.classList.remove('hidden');
+        document.getElementById('screen-clients').classList.add('hidden');
+        document.getElementById('screen-team').classList.add('hidden');
+      }
+    }
+
+    // ──── Clients Screen ────
+    async function loadClients() {
+      const el = document.getElementById('clients-list');
+      let clients = [];
+      try { clients = await q('seo_clients', 'order=created_at.desc'); } catch(e) {}
+
+      if (!clients || clients.length === 0) {
+        // Demo clients
+        clients = [
+          { id: '1', client_name: 'Next Place', domain: 'nextplace.co.il', niche: 'נדל"ן', status: 'active', last_audit_score: 62, last_audit_date: '2026-03-28' },
+          { id: '2', client_name: 'TechStart', domain: 'techstart.io', niche: 'SaaS', status: 'pending', last_audit_score: null, last_audit_date: null },
+          { id: '3', client_name: 'HealthPlus', domain: 'healthplus.co.il', niche: 'בריאות', status: 'active', last_audit_score: 78, last_audit_date: '2026-03-20' },
+        ];
+      }
+
+      el.innerHTML = clients.map(c => {
+        const score = c.last_audit_score;
+        const scoreColor = score >= 70 ? 'text-green-600 bg-green-50 border-green-200' : score >= 45 ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : score ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-gray-400 bg-gray-50 border-gray-200';
+        const statusBadge = c.status === 'active' ? '<span class="px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200 text-[10px]">פעיל</span>' : '<span class="px-2 py-0.5 rounded-full bg-gray-50 text-gray-400 border border-gray-200 text-[10px]">ממתין</span>';
+        const date = c.last_audit_date ? new Date(c.last_audit_date).toLocaleDateString('he-IL') : '—';
+        return `<div class="glass-strong rounded-2xl p-4 glass-card transition-all cursor-pointer" onclick="openClientAudit('${c.domain}','${c.client_name}')">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center text-lg font-bold text-brand-700 border border-brand-500/10">${(c.client_name||'?')[0]}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5"><span class="font-bold text-sm">${c.client_name}</span>${statusBadge}</div>
+              <div class="text-xs text-gray-400">${c.domain} · ${c.niche || ''}</div>
+            </div>
+            <div class="text-left">
+              <div class="w-14 h-14 rounded-xl border ${scoreColor} flex flex-col items-center justify-center">
+                <span class="text-lg font-bold">${score || '—'}</span>
+                <span class="text-[9px]">/100</span>
+              </div>
+            </div>
+            <div class="text-left min-w-[70px]">
+              <div class="text-[10px] text-gray-400">אודיט אחרון</div>
+              <div class="text-xs font-medium">${date}</div>
+            </div>
+            <div class="text-gray-300 text-lg">←</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function openClientAudit(domain, name) {
+      document.getElementById('input-domain').value = domain;
+      document.getElementById('input-name').value = name;
+      document.getElementById('header-client').classList.remove('hidden');
+      document.getElementById('header-domain').textContent = domain;
+      showScreen('audit');
+      goToStage('diagnosis');
+    }
+
+    // ──── Team Screen ────
+    const TEAM_DATA = [
+      { id:'daniel', name:'דניאל', role:'מנהל צוות', desc:'מתאם בין כל הסוכנים, מריץ אודיטים, מכין סיכומים ותוכניות עבודה. הוא השולח את הצוות ומקבל את הדוחות.', skills:['ניהול','סיכום','תכנון','תיאום'], status:'online' },
+      { id:'techno', name:'טכנו', role:'Technical SEO', desc:'מומחה בכל מה שטכני — מהירות, Core Web Vitals, Lighthouse, crawlability, indexation, schema markup, ו-server configuration.', skills:['Lighthouse','CWV','Schema','Crawl'], status:'online' },
+      { id:'keyword', name:'קיוורד', role:'Keyword Research', desc:'חוקר מילות מפתח, מנתח נפחי חיפוש, זיהוי הזדמנויות, מיפוי כוונת חיפוש, ומציאת פערים מול מתחרים.', skills:['מחקר מילים','Search Intent','Gap Analysis','GSC'], status:'online' },
+      { id:'spy', name:'ספיי', role:'Competitor Analysis', desc:'מרגל על המתחרים — מנתח אסטרטגיות, מזהה הזדמנויות, משווה ביצועים, ומוצא חולשות לניצול.', skills:['מתחרים','SERP','תוכן','אסטרטגיה'], status:'online' },
+      { id:'linky', name:'לינקי', role:'Backlink Analysis', desc:'מומחית בקישורים — ניתוח פרופיל קישורים, Domain Rating, זיהוי הזדמנויות לבניית קישורים, וניטור קישורים רעילים.', skills:['Backlinks','DR','Link Building','Disavow'], status:'online' },
+      { id:'geo', name:"ג'יאו", role:'AI Visibility (GEO)', desc:'מומחה בנראות ב-AI Search — בודק אם ואיך האתר מופיע בתשובות של ChatGPT, Gemini, Perplexity ו-Claude.', skills:['GEO','AI Search','LLM Mentions','Citations'], status:'online' },
+    ];
+
+    function renderTeam() {
+      document.getElementById('team-grid').innerHTML = TEAM_DATA.map(t => `
+        <div class="glass-strong rounded-2xl p-5 glass-card transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <img src="agents/${t.id}.webp" alt="${t.name}" class="w-14 h-14 rounded-full object-cover border-2 border-brand-500/20">
+            <div>
+              <div class="flex items-center gap-2"><span class="font-bold text-base">${t.name}</span><span class="w-2 h-2 rounded-full bg-green-500"></span></div>
+              <div class="text-xs text-brand-500 font-medium">${t.role}</div>
+            </div>
+          </div>
+          <p class="text-xs text-gray-600 leading-relaxed mb-3">${t.desc}</p>
+          <div class="flex flex-wrap gap-1.5 mb-3">${t.skills.map(s => `<span class="px-2 py-0.5 rounded-full bg-brand-500/5 border border-brand-500/10 text-[10px] text-brand-700">${s}</span>`).join('')}</div>
+          <button onclick="chatWithAgent('${t.id}')" class="w-full py-2 rounded-lg border border-brand-500/20 text-xs font-medium text-brand-700 hover:bg-brand-500/5 transition-all">💬 שלח הודעה</button>
+        </div>
+      `).join('');
+    }
+
+    function chatWithAgent(agentId) {
+      const agent = TEAM_DATA.find(t => t.id === agentId);
+      const msg = prompt('💬 שלח הודעה ל-' + agent.name + ':');
+      if (msg) {
+        alert('✅ ההודעה נשלחה ל-' + agent.name + '!\n\n(בגרסה הבאה — צ\'אט חי עם כל סוכן)');
+      }
     }
 
     // ──── Init ────
