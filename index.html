@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEO Control Tower | Pink Media</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -187,11 +188,21 @@
                 <input id="input-gsc" type="text" placeholder="sc-domain:example.co.il" class="w-full px-4 py-3 rounded-xl text-sm" dir="ltr">
               </div>
               <div>
-                <label class="text-xs text-gray-400 mb-1.5 block">📄 העלאת סריקת Screaming Frog (CSV)</label>
-                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-200 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400">
-                  <span>📁</span> <span id="sf-label">לחץ לבחירת קובץ</span>
-                  <input id="input-sf" type="file" accept=".csv" class="hidden" onchange="document.getElementById('sf-label').textContent=this.files[0]?.name||'לחץ לבחירת קובץ'">
+                <label class="text-xs text-gray-400 mb-1.5 block">📄 העלאת סריקות Screaming Frog (CSV)</label>
+                <label class="flex items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed border-gray-200 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400 hover:bg-brand-500/5">
+                  <span class="text-2xl">📁</span>
+                  <div class="text-center"><span id="sf-label" class="block font-medium">גרור קבצים או לחץ לבחירה</span><span class="text-[10px] text-gray-300">internal_all.csv, response_codes_4xx.csv וכו'</span></div>
+                  <input id="input-sf" type="file" accept=".csv" multiple class="hidden" onchange="handleSFUpload(this.files)">
                 </label>
+                <div id="sf-results" class="hidden mt-3 glass rounded-xl p-3 text-xs space-y-1 max-h-32 overflow-y-auto"></div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">📊 העלאת דוח GSC (CSV מ-Google Search Console)</label>
+                <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-200 cursor-pointer hover:border-brand-500/40 transition text-sm text-gray-400 hover:bg-brand-500/5">
+                  <span>📊</span> <span id="gsc-label">לחץ לבחירת קובץ</span>
+                  <input id="input-gsc-file" type="file" accept=".csv" class="hidden" onchange="handleGSCUpload(this.files[0])">
+                </label>
+                <div id="gsc-results" class="hidden mt-3 glass rounded-xl p-3 text-xs"></div>
               </div>
             </div>
           </details>
@@ -574,6 +585,27 @@
         if (result.success) {
           currentClientId = result.client_id;
           currentAuditId = result.audit_id;
+
+          // Save SF issues as tasks with affected pages
+          if (sfIssues.length > 0) {
+            const grouped = {};
+            sfIssues.forEach(i => { grouped[i.type] = grouped[i.type] || []; grouped[i.type].push(i); });
+            const sfTasks = Object.entries(grouped).map(([type, items], idx) => ({
+              client_id: result.client_id, audit_id: result.audit_id, task_number: 100 + idx,
+              phase: items[0].severity === 'critical' ? 'now' : 'month',
+              title: `תקן ${items.length} בעיות: ${items[0].issue}`,
+              description: `Screaming Frog מצא ${items.length} דפים עם "${items[0].issue}". לחץ "תקן אוטומטית" לקבלת הוראות.`,
+              agent_name: type.includes('error') ? 'טכנו' : 'קיוורד',
+              agent_emoji: type.includes('error') ? '🔧' : '🔑',
+              impact: items[0].severity === 'critical' ? 'high' : 'medium',
+              difficulty: 'easy', estimated_time: `${Math.ceil(items.length * 2)} דקות`,
+              category: type.includes('error') ? 'technical' : 'content', status: 'pending',
+              affected_pages: items.slice(0, 50).map(i => ({ url: i.url, issue: i.issue }))
+            }));
+            fetch(`${SB_URL}/rest/v1/seo_tasks`, { method:'POST', headers:{...HDR,'Prefer':'return=minimal'}, body:JSON.stringify(sfTasks) }).catch(()=>{});
+            addFeed(`📁 Screaming Frog: ${sfIssues.length} בעיות מ-${Object.keys(grouped).length} קטגוריות`);
+          }
+
           for (let i = 0; i < 6; i++) setAgent(i, 100, 'done');
           addFeed(`✅ אודיט הושלם! ציון: ${result.overall_score}/100`);
           addFeed(`🔧 Lighthouse: Performance ${result.lighthouse?.performance}, SEO ${result.lighthouse?.seo}`);
@@ -1150,6 +1182,115 @@
         document.getElementById(typingId)?.remove();
         messagesEl.innerHTML += `<div class="flex gap-3 items-start"><div class="text-xs text-red-500">❌ שגיאה: ${e.message}</div></div>`;
       }
+    }
+
+    // ──── Screaming Frog Parser ────
+    let sfIssues = [];
+    let gscData = [];
+
+    function handleSFUpload(files) {
+      const resultsEl = document.getElementById('sf-results');
+      resultsEl.classList.remove('hidden');
+      resultsEl.innerHTML = '<div class="text-gray-400">מעבד קבצים...</div>';
+      sfIssues = [];
+      let processed = 0;
+
+      Array.from(files).forEach(file => {
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const rows = results.data;
+            const fname = file.name.toLowerCase();
+
+            rows.forEach(row => {
+              const url = row['Address'] || row['URL'] || row['Source'] || row['Destination'] || '';
+              if (!url || url === 'Address') return;
+
+              // Detect issue type from filename or content
+              if (fname.includes('4xx') || fname.includes('client_error')) {
+                sfIssues.push({ url, issue: `${row['Status Code'] || '404'} Error`, type: 'error_4xx', severity: 'critical' });
+              } else if (fname.includes('3xx') || fname.includes('redirect')) {
+                sfIssues.push({ url, issue: `Redirect ${row['Status Code'] || '301'}`, type: 'redirect', severity: 'warning' });
+              } else if (fname.includes('5xx') || fname.includes('server_error')) {
+                sfIssues.push({ url, issue: `Server Error ${row['Status Code'] || '500'}`, type: 'error_5xx', severity: 'critical' });
+              } else if (fname.includes('h1_missing') || fname.includes('missing_h1')) {
+                sfIssues.push({ url, issue: 'חסר H1', type: 'h1_missing', severity: 'critical' });
+              } else if (fname.includes('h1_duplicate')) {
+                sfIssues.push({ url, issue: 'H1 כפול', type: 'h1_duplicate', severity: 'warning' });
+              } else if (fname.includes('h1_multiple')) {
+                sfIssues.push({ url, issue: 'מספר H1', type: 'h1_multiple', severity: 'warning' });
+              } else if (fname.includes('meta_description_missing')) {
+                sfIssues.push({ url, issue: 'חסר Meta Description', type: 'meta_missing', severity: 'warning' });
+              } else if (fname.includes('meta_description_duplicate')) {
+                sfIssues.push({ url, issue: 'Meta Description כפול', type: 'meta_duplicate', severity: 'warning' });
+              } else if (fname.includes('title_missing')) {
+                sfIssues.push({ url, issue: 'חסר Title', type: 'title_missing', severity: 'critical' });
+              } else if (fname.includes('title_duplicate')) {
+                sfIssues.push({ url, issue: 'Title כפול', type: 'title_duplicate', severity: 'warning' });
+              } else if (fname.includes('images_missing_alt') || fname.includes('alt_text')) {
+                sfIssues.push({ url, issue: 'תמונה בלי Alt', type: 'alt_missing', severity: 'warning' });
+              } else if (fname.includes('internal_all') || fname.includes('all_pages')) {
+                // Parse main crawl - check for issues in each row
+                const status = parseInt(row['Status Code'] || '200');
+                if (status >= 400) sfIssues.push({ url, issue: `${status} Error`, type: 'error_' + Math.floor(status/100) + 'xx', severity: 'critical' });
+                if (row['Title 1 Length'] && parseInt(row['Title 1 Length']) === 0) sfIssues.push({ url, issue: 'חסר Title', type: 'title_missing', severity: 'critical' });
+                if (row['Meta Description 1 Length'] && parseInt(row['Meta Description 1 Length']) === 0) sfIssues.push({ url, issue: 'חסר Meta Description', type: 'meta_missing', severity: 'warning' });
+                if (row['H1-1 Length'] && parseInt(row['H1-1 Length']) === 0) sfIssues.push({ url, issue: 'חסר H1', type: 'h1_missing', severity: 'critical' });
+                if (parseInt(row['Word Count'] || '999') < 100 && status === 200) sfIssues.push({ url, issue: `תוכן דליל (${row['Word Count']} מילים)`, type: 'thin_content', severity: 'warning' });
+              } else {
+                // Generic - just track as issue
+                sfIssues.push({ url, issue: fname.replace('.csv','').replace(/_/g,' '), type: 'other', severity: 'info' });
+              }
+            });
+
+            processed++;
+            if (processed === files.length) {
+              // Group by type
+              const grouped = {};
+              sfIssues.forEach(i => { grouped[i.type] = (grouped[i.type] || []); grouped[i.type].push(i); });
+
+              const critCount = sfIssues.filter(i => i.severity === 'critical').length;
+              const warnCount = sfIssues.filter(i => i.severity === 'warning').length;
+
+              resultsEl.innerHTML = `<div class="font-medium text-gray-700 mb-2">✅ נמצאו ${sfIssues.length} בעיות (🔴 ${critCount} קריטיות, 🟡 ${warnCount} אזהרות)</div>` +
+                Object.entries(grouped).map(([type, items]) => {
+                  const icon = items[0].severity === 'critical' ? '🔴' : '🟡';
+                  return `<div class="flex items-center justify-between py-1 border-b border-gray-100"><span>${icon} ${items[0].issue}</span><span class="font-bold">${items.length} דפים</span></div>`;
+                }).join('');
+
+              document.getElementById('sf-label').textContent = `${files.length} קבצים נטענו (${sfIssues.length} בעיות)`;
+            }
+          }
+        });
+      });
+    }
+
+    function handleGSCUpload(file) {
+      if (!file) return;
+      const resultsEl = document.getElementById('gsc-results');
+      resultsEl.classList.remove('hidden');
+      resultsEl.innerHTML = '<div class="text-gray-400">מעבד...</div>';
+      gscData = [];
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          gscData = results.data.map(row => ({
+            page: row['Page'] || row['Top pages'] || row['Landing Page'] || row['page'] || '',
+            query: row['Query'] || row['Top queries'] || row['query'] || '',
+            clicks: parseInt(row['Clicks'] || row['clicks'] || '0'),
+            impressions: parseInt(row['Impressions'] || row['impressions'] || '0'),
+            ctr: parseFloat(row['CTR'] || row['ctr'] || '0'),
+            position: parseFloat(row['Position'] || row['position'] || '0'),
+          })).filter(r => r.page || r.query);
+
+          resultsEl.innerHTML = `<div class="font-medium text-gray-700">✅ ${gscData.length} שורות נטענו מ-GSC</div>
+            <div class="text-gray-500 mt-1">${gscData.filter(r=>r.query).length} מילות מפתח | ${gscData.filter(r=>r.page).length} דפים</div>`;
+          document.getElementById('gsc-label').textContent = file.name;
+        }
+      });
     }
 
     // ──── Init ────
