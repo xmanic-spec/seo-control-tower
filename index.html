@@ -553,26 +553,75 @@
 
     // ──── Diagnosis ────
     async function loadDiagnosis() {
-      // Try loading real data from Supabase
       const CLIENT_ID = currentClientId || '295539a5-c3a9-4453-8295-4c982a700166';
       try {
         const audits = await q('seo_audits', `client_id=eq.${CLIENT_ID}&order=created_at.desc&limit=1`);
         if (audits?.length > 0) {
           const a = audits[0];
+          currentAuditId = a.id;
           renderScoreRing(a.overall_score || 35);
           setMaturity(a.maturity_level || 'foundation');
-          const sc = a.sikum_result?.scores || { technical:a.technical_score||30, content:a.content_score||40, authority:a.authority_score||25, keywords:a.keywords_score||35, competition:40, geo:a.geo_score||20 };
+          const sc = a.sikum_result?.scores || { technical:a.technical_score||30, content:a.content_score||40, authority:a.authority_score||25, keywords:a.keywords_score||35, competition:45, geo:a.geo_score||20 };
           renderCategories(sc);
-          renderSummary(sc, a.sikum_result);
+
+          // Show real summary from Daniel
+          const summary = a.sikum_result?.summary || '';
+          const techno = a.techno_result || {};
+          const issues = techno.issues || [];
+          document.getElementById('stat-critical').textContent = issues.filter(i => typeof i === 'object' ? i.severity === 'critical' : i === 'missing_h1').length;
+          document.getElementById('stat-quickwins').textContent = Math.min(issues.length, 5);
+          document.getElementById('stat-pages').textContent = techno.on_page?.internal_links || '--';
+
+          // Lighthouse data
+          const lh = techno.lighthouse || {};
+          if (lh.performance) {
+            document.getElementById('diagnosis-daniel-msg').textContent = summary || 'סיימנו! הנה הסיכום:';
+            renderSummaryReal(sc, lh, techno);
+          } else {
+            renderSummary(sc, a.sikum_result);
+          }
           return;
         }
-      } catch(e) {}
+      } catch(e) { console.warn('Supabase error:', e); }
 
-      // Fallback demo data
       renderScoreRing(35);
       setMaturity('foundation');
-      renderCategories({ technical:30, content:40, authority:25, keywords:35, competition:40, geo:20 });
-      renderSummary({ technical:30, content:40, authority:25, keywords:35, competition:40, geo:20 }, { maturity_level:'foundation' });
+      renderCategories({ technical:30, content:40, authority:25, keywords:35, competition:45, geo:20 });
+      renderSummary({ technical:30, content:40, authority:25, keywords:35, competition:45, geo:20 }, {});
+    }
+
+    function renderSummaryReal(sc, lh, techno) {
+      const op = techno.on_page || {};
+      const issues = techno.issues || [];
+      const el = document.getElementById('diagnosis-summary');
+      el.innerHTML = `<div class="space-y-4">
+        <div class="flex items-start gap-3"><div class="text-xl">🏎️</div><div>
+          <h4 class="text-sm font-bold text-white mb-1">Lighthouse (נתונים אמיתיים)</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.performance}</div><div class="text-gray-500">Performance</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.seo}</div><div class="text-gray-500">SEO</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.accessibility}</div><div class="text-gray-500">Accessibility</div></div>
+            <div class="glass rounded-lg p-2 text-center"><div class="text-lg font-bold text-green-400">${lh.best_practices}</div><div class="text-gray-500">Best Practices</div></div>
+          </div>
+          <div class="flex gap-4 mt-2 text-xs text-gray-400">
+            <span>⚡ FCP: ${lh.fcp || '--'}</span><span>📏 LCP: ${lh.lcp || '--'}</span><span>🧱 TBT: ${lh.tbt || '--'}</span><span>📐 CLS: ${lh.cls || '--'}</span>
+          </div>
+        </div></div>
+        <div class="flex items-start gap-3"><div class="text-xl">🔍</div><div>
+          <h4 class="text-sm font-bold text-white mb-1">On-Page Analysis</h4>
+          <p class="text-xs text-gray-400">ציון: ${op.score || '--'}/100 | ${op.word_count || '--'} מילים | ${op.internal_links || '--'} קישורים פנימיים | ${op.images || '--'} תמונות</p>
+        </div></div>
+        <div class="flex items-start gap-3"><div class="text-xl">⚠️</div><div>
+          <h4 class="text-sm font-bold text-white mb-1">בעיות שנמצאו (${issues.length})</h4>
+          <div class="space-y-1">${issues.map(i => {
+            const name = typeof i === 'string' ? i : i.issue;
+            const labels = {missing_h1:'חסר H1',no_image_alt:'תמונות בלי Alt',low_content_rate:'תוכן דליל',irrelevant_title:'כותרת לא מתאימה',unused_css_js:'CSS/JS מיותר',image_optimization:'תמונות כבדות',duplicate_meta_tags:'Meta כפולים'};
+            const sev = typeof i === 'object' ? i.severity : (name === 'missing_h1' ? 'critical' : 'medium');
+            const sevColor = sev === 'critical' ? 'text-red-400 bg-red-500/10' : sev === 'high' ? 'text-orange-400 bg-orange-500/10' : 'text-yellow-400 bg-yellow-500/10';
+            return '<div class="flex items-center gap-2"><span class="px-1.5 py-0.5 rounded text-[10px] '+sevColor+'">'+(sev==='critical'?'🔴':sev==='high'?'🟠':'🟡')+' '+sev+'</span><span class="text-xs text-gray-300">'+(labels[name]||name)+'</span></div>';
+          }).join('')}</div>
+        </div></div>
+      </div>`;
     }
 
     function renderScoreRing(s) {
@@ -679,9 +728,13 @@
       document.getElementById('task-emoji').textContent = t.agent_emoji || '🤖';
       document.getElementById('task-agent').textContent = t.agent_name || 'סוכן';
       document.getElementById('task-title').textContent = t.title;
-      document.getElementById('task-description').textContent = t.description || '';
+      // Show description + action items
+      const actions = t.action_items || [];
+      const actionsHtml = actions.length ? '<div class="mt-3 space-y-1.5">' + actions.map(a => `<div class="flex items-start gap-2 text-xs"><span class="text-purple-400 mt-0.5">▸</span><span>${a}</span></div>`).join('') + '</div>' : '';
+      document.getElementById('task-description').innerHTML = `<p class="mb-2">${t.description || ''}</p>${t.explanation ? '<p class="text-xs text-gray-500 italic mb-2">📊 ' + t.explanation + '</p>' : ''}${actionsHtml}`;
       document.getElementById('task-impact').textContent = '🎯 ' + (t.impact==='high'?'גבוהה':t.impact==='low'?'נמוכה':'בינונית');
       document.getElementById('task-time').textContent = '⏱️ ' + (t.estimated_time || '--');
+      document.getElementById('task-difficulty').textContent = '💪 ' + (t.difficulty==='easy'?'קל':t.difficulty==='hard'?'מאתגר':'בינוני');
     }
 
     function completeTask() {
