@@ -482,6 +482,10 @@
         else el.classList.add('step-pending');
       }
 
+      // Re-trigger fade-up animations
+      const stageEl = document.getElementById('stage-' + stage);
+      stageEl.querySelectorAll('.fade-up').forEach(el => { el.style.animation='none'; el.offsetHeight; el.style.animation=''; });
+
       if (stage === 'diagnosis') loadDiagnosis();
       if (stage === 'roadmap') loadRoadmap();
       if (stage === 'execution') loadExecution();
