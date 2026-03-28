@@ -503,20 +503,54 @@
       document.getElementById('header-client').classList.remove('hidden');
       document.getElementById('header-domain').textContent = domain;
       goToStage('discovery');
-      simulateDiscovery(domain, name);
+      runRealAudit(domain, name, niche);
+    }
 
-      // Fire real Daniel webhook in background
+    async function runRealAudit(domain, name, niche) {
+      renderAgentProgress();
+      const feedEl = document.getElementById('discovery-feed');
+      feedEl.innerHTML = '';
+      const geo = document.getElementById('input-geo')?.value || 'IL';
+      const lang = document.getElementById('input-lang')?.value || 'he';
+
+      function addFeed(msg) { feedEl.innerHTML = `<div class="text-gray-600 text-xs py-1 border-r-2 border-brand-500/40 pr-3 mr-1">${msg}</div>` + feedEl.innerHTML; }
+      function setAgent(idx, pct, status) { AGENTS[idx].pct = pct; AGENTS[idx].status = status || (pct===100?'done':'working'); renderAgentProgress(); updateOverallProgress(); }
+
+      addFeed('👨‍💼 דניאל: שולח את הצוות לסרוק את ' + domain + '...');
+      setAgent(5, 10, 'working');
+      setTimeout(() => { setAgent(0, 30, 'working'); addFeed('🔧 טכנו: מריץ Lighthouse scan...'); }, 500);
+      setTimeout(() => { setAgent(1, 20, 'working'); addFeed('🔑 קיוורד: מחפש מילות מפתח...'); }, 2000);
+      setTimeout(() => { setAgent(2, 20, 'working'); addFeed('🕵️ ספיי: מזהה מתחרים...'); }, 4000);
+      setTimeout(() => { setAgent(3, 30, 'working'); addFeed('🔗 לינקי: בודק קישורים...'); }, 5000);
+      setTimeout(() => { setAgent(4, 25, 'working'); addFeed('🤖 ג\'יאו: בודק נראות AI...'); }, 6000);
+
       try {
-        fetch(DANIEL_WEBHOOK, {
+        const res = await fetch(`${SB_URL}/functions/v1/run-audit`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ client_id: 'nextplace' })
-        }).then(r => r.text()).then(d => {
-          console.log('Daniel completed:', d);
-          // Reload real data when Daniel finishes
-          loadDiagnosis();
-        }).catch(e => console.warn('Daniel webhook error:', e));
-      } catch(e) { console.warn('Failed to trigger Daniel:', e); }
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+          body: JSON.stringify({ domain, client_name: name, niche, geo, lang }),
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          currentClientId = result.client_id;
+          currentAuditId = result.audit_id;
+          for (let i = 0; i < 6; i++) setAgent(i, 100, 'done');
+          addFeed(`✅ אודיט הושלם! ציון: ${result.overall_score}/100`);
+          addFeed(`🔧 Lighthouse: Performance ${result.lighthouse?.performance}, SEO ${result.lighthouse?.seo}`);
+          addFeed(`🔑 ${result.organic?.total_keywords} מילים | 🕵️ ${result.competitors} מתחרים | 📋 ${result.tasks} משימות`);
+          document.getElementById('discovery-message').textContent = `סריקה הושלמה! ציון ${result.overall_score}/100. עובר לתוצאות...`;
+          setTimeout(() => goToStage('diagnosis'), 2500);
+        } else {
+          addFeed('❌ ' + (result.error || 'שגיאה'));
+          for (let i = 0; i < 6; i++) setAgent(i, 100, 'done');
+          setTimeout(() => goToStage('diagnosis'), 3000);
+        }
+      } catch(e) {
+        addFeed('❌ שגיאת רשת: ' + e.message);
+        for (let i = 0; i < 6; i++) setAgent(i, 100, 'done');
+        setTimeout(() => goToStage('diagnosis'), 3000);
+      }
     }
 
     // ──── Discovery Simulation ────
