@@ -70,7 +70,10 @@
           <button onclick="showScreen('audit')" id="nav-audit" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-brand-500/10 text-brand-700">🔍 אודיט</button>
         </nav>
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-green-200 bg-green-50 text-xs"><span class="w-1.5 h-1.5 rounded-full bg-green-500 pulse-dot"></span><span class="text-green-700 text-[11px]">Live</span></div>
-        <div id="header-client" class="hidden text-xs text-gray-500"><span id="header-domain"></span></div>
+        <div id="header-client" class="hidden flex items-center gap-2 text-xs text-gray-500">
+          <button onclick="showScreen('clients')" class="px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition">← לקוחות</button>
+          <span id="header-domain"></span>
+        </div>
       </div>
     </div>
   </header>
@@ -488,7 +491,11 @@
   <div id="screen-clients" class="hidden max-w-5xl mx-auto px-6 py-8">
     <div class="flex items-center justify-between mb-6">
       <div><h2 class="text-xl font-bold">👥 הלקוחות שלי</h2><p class="text-xs text-gray-400 mt-1">כל הלקוחות עם סטטוס האודיט האחרון</p></div>
-      <button onclick="showScreen('audit');goToStage('onboarding')" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-all flex items-center gap-2">➕ לקוח חדש</button>
+      <div class="flex items-center gap-2">
+        <button id="btn-delete-clients" onclick="deleteSelectedClients()" class="hidden px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all">🗑️ מחק נבחרים</button>
+        <button id="btn-select-mode" onclick="toggleSelectMode()" class="px-3 py-2 rounded-xl border border-gray-200 text-gray-500 text-sm hover:bg-gray-50 transition-all">☑️</button>
+        <button onclick="showScreen('audit');goToStage('onboarding')" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-all flex items-center gap-2">➕ לקוח חדש</button>
+      </div>
     </div>
     <div id="clients-list" class="space-y-3">
       <div class="text-center py-12 text-gray-400 text-sm">טוען לקוחות...</div>
@@ -1073,6 +1080,40 @@
     }
 
     // ──── Clients Screen ────
+    let selectMode = false;
+    let selectedClients = new Set();
+
+    function toggleSelectMode() {
+      selectMode = !selectMode;
+      selectedClients.clear();
+      document.getElementById('btn-select-mode').classList.toggle('bg-brand-500/10', selectMode);
+      document.getElementById('btn-delete-clients').classList.toggle('hidden', !selectMode);
+      loadClients();
+    }
+
+    function toggleClient(id) {
+      if (selectedClients.has(id)) selectedClients.delete(id); else selectedClients.add(id);
+      document.getElementById('btn-delete-clients').textContent = `🗑️ מחק ${selectedClients.size} נבחרים`;
+      document.querySelectorAll('.client-checkbox').forEach(cb => {
+        cb.checked = selectedClients.has(cb.dataset.id);
+      });
+    }
+
+    async function deleteSelectedClients() {
+      if (!selectedClients.size) return;
+      if (!confirm(`למחוק ${selectedClients.size} לקוחות?`)) return;
+      for (const id of selectedClients) {
+        await fetch(`${SB_URL}/rest/v1/seo_tasks?client_id=eq.${id}`, { method: 'DELETE', headers: HDR });
+        await fetch(`${SB_URL}/rest/v1/seo_audits?client_id=eq.${id}`, { method: 'DELETE', headers: HDR });
+        await fetch(`${SB_URL}/rest/v1/seo_clients?id=eq.${id}`, { method: 'DELETE', headers: HDR });
+      }
+      selectedClients.clear();
+      selectMode = false;
+      document.getElementById('btn-delete-clients').classList.add('hidden');
+      document.getElementById('btn-select-mode').classList.remove('bg-brand-500/10');
+      loadClients();
+    }
+
     async function loadClients() {
       const el = document.getElementById('clients-list');
       let clients = [];
@@ -1092,8 +1133,10 @@
         const scoreColor = score >= 70 ? 'text-green-600 bg-green-50 border-green-200' : score >= 45 ? 'text-yellow-600 bg-yellow-50 border-yellow-200' : score ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-gray-400 bg-gray-50 border-gray-200';
         const statusBadge = c.status === 'active' ? '<span class="px-2 py-0.5 rounded-full bg-green-50 text-green-600 border border-green-200 text-[10px]">פעיל</span>' : '<span class="px-2 py-0.5 rounded-full bg-gray-50 text-gray-400 border border-gray-200 text-[10px]">ממתין</span>';
         const date = c.last_audit_date ? new Date(c.last_audit_date).toLocaleDateString('he-IL') : '—';
-        return `<div class="glass-strong rounded-2xl p-4 glass-card transition-all cursor-pointer" onclick="openClientAudit('${c.domain}','${c.client_name}')">
+        const checkbox = selectMode ? `<input type="checkbox" class="client-checkbox w-4 h-4 accent-brand-500 cursor-pointer" data-id="${c.id}" onclick="event.stopPropagation();toggleClient('${c.id}')" ${selectedClients.has(c.id)?'checked':''}>` : '';
+        return `<div class="glass-strong rounded-2xl p-4 glass-card transition-all cursor-pointer ${selectedClients.has(c.id)?'border-2 border-red-300':''}" onclick="${selectMode ? `toggleClient('${c.id}');loadClients()` : `openClientAudit('${c.domain}','${c.client_name}')`}">
           <div class="flex items-center gap-4">
+            ${checkbox}
             <div class="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center text-lg font-bold text-brand-700 border border-brand-500/10">${(c.client_name||'?')[0]}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-0.5"><span class="font-bold text-sm">${c.client_name}</span>${statusBadge}</div>
