@@ -320,6 +320,27 @@
           <div class="glass rounded-xl p-4 text-center fade-up delay-5 glass-card transition-all"><div class="text-2xl mb-1">🤖</div><div id="stat-agents" class="text-xl font-bold text-brand-500">6</div><div class="text-[10px] text-gray-500">סוכנים עבדו</div></div>
         </div>
 
+        <!-- GSC Performance Data -->
+        <div id="gsc-section" class="hidden mt-6 glass rounded-2xl p-5 fade-up delay-5">
+          <h3 class="text-sm font-bold mb-3 flex items-center gap-2">📊 Google Search Console — 28 ימים אחרונים</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div class="glass rounded-xl p-3 text-center"><div id="gsc-clicks" class="text-lg font-bold text-brand-700">—</div><div class="text-[10px] text-gray-400">קליקים</div></div>
+            <div class="glass rounded-xl p-3 text-center"><div id="gsc-impressions" class="text-lg font-bold text-blue-600">—</div><div class="text-[10px] text-gray-400">חשיפות</div></div>
+            <div class="glass rounded-xl p-3 text-center"><div id="gsc-queries-count" class="text-lg font-bold text-green-600">—</div><div class="text-[10px] text-gray-400">מילות מפתח</div></div>
+            <div class="glass rounded-xl p-3 text-center"><div id="gsc-pages-count" class="text-lg font-bold text-orange-600">—</div><div class="text-[10px] text-gray-400">דפים פעילים</div></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-xs font-medium text-gray-500 mb-2">🔑 מילות מפתח מובילות</h4>
+              <div id="gsc-top-queries" class="space-y-1 max-h-48 overflow-y-auto text-xs"></div>
+            </div>
+            <div>
+              <h4 class="text-xs font-medium text-gray-500 mb-2">📄 דפים מובילים</h4>
+              <div id="gsc-top-pages" class="space-y-1 max-h-48 overflow-y-auto text-xs"></div>
+            </div>
+          </div>
+        </div>
+
         <button onclick="goToStage('roadmap')" class="w-full mt-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold hover:bg-brand-600 transition-all flex items-center justify-center gap-2 fade-up delay-5">
           📋 הראה לי את תוכנית העבודה →
         </button>
@@ -593,16 +614,39 @@
       setTimeout(() => { setAgent(4, 25, 'working'); addFeed('🤖 ג\'יאו: בודק נראות AI...'); }, 6000);
 
       try {
-        const res = await fetch(`${SB_URL}/functions/v1/run-audit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-          body: JSON.stringify({ domain, client_name: name, niche, geo, lang, gsc_issues: collectGSCIssues() }),
-        });
+        // Run DataForSEO audit + GSC pull in parallel
+        const gscSiteUrl = document.getElementById('input-gsc')?.value || `https://${domain}/`;
+        const [res, gscRes] = await Promise.all([
+          fetch(`${SB_URL}/functions/v1/run-audit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
+            body: JSON.stringify({ domain, client_name: name, niche, geo, lang, gsc_issues: collectGSCIssues() }),
+          }),
+          fetch(`${SB_URL}/functions/v1/gsc-pull`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ site_url: gscSiteUrl }),
+          }).catch(() => null),
+        ]);
         const result = await res.json();
+        let gscResult = null;
+        try { if (gscRes) gscResult = await gscRes.json(); } catch(e) {}
 
         if (result.success) {
           currentClientId = result.client_id;
           currentAuditId = result.audit_id;
+
+          // Save GSC data to audit
+          if (gscResult?.success) {
+            addFeed(`📊 GSC: ${gscResult.summary.total_clicks.toLocaleString()} קליקים | ${gscResult.summary.total_impressions.toLocaleString()} חשיפות | ${gscResult.summary.queries_count} מילות מפתח`);
+            // Update audit with GSC data
+            fetch(`${SB_URL}/rest/v1/seo_audits?id=eq.${result.audit_id}`, {
+              method: 'PATCH', headers: {...HDR, 'Prefer': 'return=minimal'},
+              body: JSON.stringify({ sikum_result: { ...result, gsc: gscResult } }),
+            }).catch(()=>{});
+            // Store GSC data for diagnosis display
+            window.__gscData = gscResult;
+          }
 
           // Save SF issues as tasks with affected pages
           if (sfIssues.length > 0) {
@@ -612,7 +656,7 @@
               client_id: result.client_id, audit_id: result.audit_id, task_number: 100 + idx,
               phase: items[0].severity === 'critical' ? 'now' : 'month',
               title: `תקן ${items.length} בעיות: ${items[0].issue}`,
-              description: `Screaming Frog מצא ${items.length} דפים עם "${items[0].issue}". לחץ "תקן אוטומטית" לקבלת הוראות.`,
+              description: `Screaming Frog מצא ${items.length} דפים עם "${items[0].issue}".`,
               agent_name: type.includes('error') ? 'טכנו' : 'קיוורד',
               agent_emoji: type.includes('error') ? '🔧' : '🔑',
               impact: items[0].severity === 'critical' ? 'high' : 'medium',
@@ -621,7 +665,7 @@
               affected_pages: items.slice(0, 50).map(i => ({ url: i.url, issue: i.issue }))
             }));
             fetch(`${SB_URL}/rest/v1/seo_tasks`, { method:'POST', headers:{...HDR,'Prefer':'return=minimal'}, body:JSON.stringify(sfTasks) }).catch(()=>{});
-            addFeed(`📁 Screaming Frog: ${sfIssues.length} בעיות מ-${Object.keys(grouped).length} קטגוריות`);
+            addFeed(`📁 Screaming Frog: ${sfIssues.length} בעיות`);
           }
 
           for (let i = 0; i < 6; i++) setAgent(i, 100, 'done');
@@ -740,6 +784,10 @@
 
           // Real summary with lighthouse + keywords + competitors
           renderSummaryReal(sc, lh, org, comps, topKw, sr);
+
+          // Render GSC data if available
+          const gsc = sr.gsc || window.__gscData;
+          if (gsc?.success) renderGSCSection(gsc);
           return;
         }
       } catch(e) { console.warn('Supabase error:', e); }
@@ -1332,6 +1380,33 @@
           document.getElementById('gsc-label').textContent = file.name;
         }
       });
+    }
+
+    // ──── Render GSC Section ────
+    function renderGSCSection(gsc) {
+      document.getElementById('gsc-section').classList.remove('hidden');
+      document.getElementById('gsc-clicks').textContent = gsc.summary.total_clicks.toLocaleString();
+      document.getElementById('gsc-impressions').textContent = gsc.summary.total_impressions.toLocaleString();
+      document.getElementById('gsc-queries-count').textContent = gsc.summary.queries_count;
+      document.getElementById('gsc-pages-count').textContent = gsc.summary.pages_count;
+
+      document.getElementById('gsc-top-queries').innerHTML = (gsc.queries || []).slice(0, 10).map(q =>
+        `<div class="flex items-center justify-between py-1.5 border-b border-gray-100">
+          <span class="truncate flex-1 text-gray-700">${q.query}</span>
+          <span class="text-brand-700 font-bold ml-2">${q.clicks}</span>
+          <span class="text-gray-400 ml-2 w-16 text-left">${q.impressions.toLocaleString()}</span>
+          <span class="text-gray-400 ml-2 w-10 text-left">${q.position}</span>
+        </div>`
+      ).join('') || '<div class="text-gray-400">אין נתונים</div>';
+
+      document.getElementById('gsc-top-pages').innerHTML = (gsc.pages || []).slice(0, 10).map(p => {
+        const path = p.page.replace(/https?:\/\/[^/]+/, '') || '/';
+        return `<div class="flex items-center justify-between py-1.5 border-b border-gray-100">
+          <span class="truncate flex-1 text-gray-700" dir="ltr">${path}</span>
+          <span class="text-brand-700 font-bold ml-2">${p.clicks}</span>
+          <span class="text-gray-400 ml-2 w-10 text-left">${p.position}</span>
+        </div>`;
+      }).join('') || '<div class="text-gray-400">אין נתונים</div>';
     }
 
     // ──── Collect GSC Manual Input ────
