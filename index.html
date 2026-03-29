@@ -204,6 +204,24 @@
                 </label>
                 <div id="gsc-results" class="hidden mt-3 glass rounded-xl p-3 text-xs"></div>
               </div>
+              <div>
+                <label class="text-xs text-gray-400 mb-1.5 block">📋 GSC Page Indexing — הכנס מספרים מה-GSC שלך</label>
+                <div class="glass rounded-xl p-3 space-y-2 text-xs">
+                  <p class="text-gray-400 text-[10px] mb-2">פתח GSC → Indexing → Pages → העתק את המספרים:</p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="flex items-center gap-2"><span class="text-red-500">●</span><input id="gsc-noindex" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Excluded by noindex</span></div>
+                    <div class="flex items-center gap-2"><span class="text-red-500">●</span><input id="gsc-404" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Not found (404)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-orange-500">●</span><input id="gsc-robots" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Blocked by robots.txt</span></div>
+                    <div class="flex items-center gap-2"><span class="text-orange-500">●</span><input id="gsc-canonical" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Alternate canonical</span></div>
+                    <div class="flex items-center gap-2"><span class="text-yellow-500">●</span><input id="gsc-redirect" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Page with redirect</span></div>
+                    <div class="flex items-center gap-2"><span class="text-red-500">●</span><input id="gsc-5xx" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Server error (5xx)</span></div>
+                    <div class="flex items-center gap-2"><span class="text-yellow-500">●</span><input id="gsc-crawled-not-indexed" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Crawled not indexed</span></div>
+                    <div class="flex items-center gap-2"><span class="text-yellow-500">●</span><input id="gsc-discovered" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Discovered not indexed</span></div>
+                    <div class="flex items-center gap-2"><span class="text-orange-500">●</span><input id="gsc-duplicate-canonical" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Duplicate canonical</span></div>
+                    <div class="flex items-center gap-2"><span class="text-orange-500">●</span><input id="gsc-soft-404" type="number" placeholder="0" class="w-20 px-2 py-1 rounded-lg text-xs text-center" min="0"><span class="text-gray-500">Soft 404</span></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </details>
 
@@ -578,7 +596,7 @@
         const res = await fetch(`${SB_URL}/functions/v1/run-audit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-          body: JSON.stringify({ domain, client_name: name, niche, geo, lang, gsc_issues: gscIssues.length ? gscIssues : undefined }),
+          body: JSON.stringify({ domain, client_name: name, niche, geo, lang, gsc_issues: collectGSCIssues() }),
         });
         const result = await res.json();
 
@@ -1314,6 +1332,32 @@
           document.getElementById('gsc-label').textContent = file.name;
         }
       });
+    }
+
+    // ──── Collect GSC Manual Input ────
+    function collectGSCIssues() {
+      const fields = [
+        { id: 'gsc-noindex', reason: 'Excluded by noindex tag', severity: 'warning' },
+        { id: 'gsc-404', reason: 'Not found (404)', severity: 'critical' },
+        { id: 'gsc-robots', reason: 'Blocked by robots.txt', severity: 'warning' },
+        { id: 'gsc-canonical', reason: 'Alternate page with proper canonical', severity: 'info' },
+        { id: 'gsc-redirect', reason: 'Page with redirect', severity: 'warning' },
+        { id: 'gsc-5xx', reason: 'Server error (5xx)', severity: 'critical' },
+        { id: 'gsc-crawled-not-indexed', reason: 'Crawled - currently not indexed', severity: 'warning' },
+        { id: 'gsc-discovered', reason: 'Discovered - currently not indexed', severity: 'info' },
+        { id: 'gsc-duplicate-canonical', reason: 'Duplicate, Google chose different canonical', severity: 'warning' },
+        { id: 'gsc-soft-404', reason: 'Soft 404', severity: 'critical' },
+      ];
+      const issues = [];
+      // From manual input
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const count = parseInt(el?.value || '0');
+        if (count > 0) issues.push({ reason: f.reason, count, severity: f.severity });
+      });
+      // From CSV upload
+      if (gscIssues.length > 0) issues.push(...gscIssues);
+      return issues.length > 0 ? issues : undefined;
     }
 
     // ──── Init ────
