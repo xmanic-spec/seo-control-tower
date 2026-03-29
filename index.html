@@ -578,7 +578,7 @@
         const res = await fetch(`${SB_URL}/functions/v1/run-audit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY },
-          body: JSON.stringify({ domain, client_name: name, niche, geo, lang }),
+          body: JSON.stringify({ domain, client_name: name, niche, geo, lang, gsc_issues: gscIssues.length ? gscIssues : undefined }),
         });
         const result = await res.json();
 
@@ -1266,28 +1266,51 @@
       });
     }
 
+    let gscIssues = [];
+
     function handleGSCUpload(file) {
       if (!file) return;
       const resultsEl = document.getElementById('gsc-results');
       resultsEl.classList.remove('hidden');
       resultsEl.innerHTML = '<div class="text-gray-400">מעבד...</div>';
       gscData = [];
+      gscIssues = [];
 
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          gscData = results.data.map(row => ({
-            page: row['Page'] || row['Top pages'] || row['Landing Page'] || row['page'] || '',
-            query: row['Query'] || row['Top queries'] || row['query'] || '',
-            clicks: parseInt(row['Clicks'] || row['clicks'] || '0'),
-            impressions: parseInt(row['Impressions'] || row['impressions'] || '0'),
-            ctr: parseFloat(row['CTR'] || row['ctr'] || '0'),
-            position: parseFloat(row['Position'] || row['position'] || '0'),
-          })).filter(r => r.page || r.query);
+          const rows = results.data;
+          const hasReason = rows.some(r => r['Reason'] || r['reason']);
+          const hasQuery = rows.some(r => r['Query'] || r['Top queries'] || r['query']);
 
-          resultsEl.innerHTML = `<div class="font-medium text-gray-700">✅ ${gscData.length} שורות נטענו מ-GSC</div>
-            <div class="text-gray-500 mt-1">${gscData.filter(r=>r.query).length} מילות מפתח | ${gscData.filter(r=>r.page).length} דפים</div>`;
+          if (hasReason) {
+            // GSC Page Indexing export
+            gscIssues = rows.filter(r => r['Reason'] || r['reason']).map(r => ({
+              reason: r['Reason'] || r['reason'] || '',
+              count: parseInt(r['Pages'] || r['pages'] || r['Count'] || '0'),
+              validation: r['Validation'] || r['validation'] || '',
+              severity: (r['Reason']||'').includes('404') || (r['Reason']||'').includes('5xx') || (r['Reason']||'').includes('error') ? 'critical' : 'warning',
+            })).filter(r => r.count > 0);
+
+            const totalIssues = gscIssues.reduce((s,i) => s + i.count, 0);
+            const critCount = gscIssues.filter(i => i.severity === 'critical').reduce((s,i) => s + i.count, 0);
+            resultsEl.innerHTML = `<div class="font-medium text-gray-700">✅ GSC Indexing: ${totalIssues} דפים עם בעיות</div>` +
+              gscIssues.map(i => `<div class="flex items-center justify-between py-1 border-b border-gray-100 text-[11px]"><span>${i.severity==='critical'?'🔴':'🟡'} ${i.reason}</span><span class="font-bold">${i.count.toLocaleString()}</span></div>`).join('');
+          } else if (hasQuery) {
+            // GSC Performance export
+            gscData = rows.map(row => ({
+              page: row['Page'] || row['Top pages'] || row['Landing Page'] || '',
+              query: row['Query'] || row['Top queries'] || '',
+              clicks: parseInt(row['Clicks'] || '0'),
+              impressions: parseInt(row['Impressions'] || '0'),
+              ctr: parseFloat(row['CTR'] || '0'),
+              position: parseFloat(row['Position'] || '0'),
+            })).filter(r => r.page || r.query);
+            resultsEl.innerHTML = `<div class="font-medium text-gray-700">✅ GSC Performance: ${gscData.length} שורות</div>`;
+          } else {
+            resultsEl.innerHTML = '<div class="text-orange-600">⚠️ לא זוהה פורמט GSC. ייצא מ-GSC > Page Indexing או Performance.</div>';
+          }
           document.getElementById('gsc-label').textContent = file.name;
         }
       });
